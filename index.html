@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>보듬</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css">
+<!-- Firebase SDKs (compat v10) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+/* ── THEME ───────────────────────────────────────────────── */
+:root {
+  --bg:#F4EFE8;--surf:#FBF8F4;--surf2:#EDE9E1;--ink:#2A2622;--muted:#7A7268;
+  --sage:#4F6B5C;--s-wash:#E4EBE6;
+  --cf:#4F6B5C;--cd:#7D5B38;--cs:#3D5A78;
+  --fw:rgba(79,107,92,.14);--dw:rgba(125,91,56,.14);--sw:rgba(61,90,120,.14);
+  --bdr:rgba(42,38,34,.09);--sh:0 1px 3px rgba(42,38,34,.07);--r:18px;
+  --serif:'Pretendard',system-ui,sans-serif;--sans:'Pretendard',system-ui,sans-serif;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#181614;--surf:#231F1B;--surf2:#2D2823;--ink:#EDE8E1;--muted:#8A8278;
+  --sage:#7FAF91;--s-wash:rgba(127,175,145,.15);--cf:#7FAF91;--cd:#C49A6B;--cs:#7899B8;
+  --fw:rgba(127,175,145,.15);--dw:rgba(196,154,107,.13);--sw:rgba(120,153,184,.13);
+  --bdr:rgba(237,232,225,.09);--sh:0 1px 4px rgba(0,0,0,.25);
+}}
+:root[data-theme="dark"]{--bg:#181614;--surf:#231F1B;--surf2:#2D2823;--ink:#EDE8E1;--muted:#8A8278;--sage:#7FAF91;--s-wash:rgba(127,175,145,.15);--cf:#7FAF91;--cd:#C49A6B;--cs:#7899B8;--fw:rgba(127,175,145,.15);--dw:rgba(196,154,107,.13);--sw:rgba(120,153,184,.13);--bdr:rgba(237,232,225,.09);--sh:0 1px 4px rgba(0,0,0,.25);}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* ── SETUP OVERLAY ───────────────────────────────────────── */
+.setup-ov{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px}
+.setup-card{width:100%;max-width:360px;background:var(--surf);border-radius:24px;padding:32px 24px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.setup-logo{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:28px}
+.setup-title{font-family:var(--serif);font-size:32px;font-weight:700;color:var(--ink)}
+.setup-sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.6}
+.code-display{background:var(--bg);border:2px dashed var(--sage);border-radius:14px;padding:14px;text-align:center;font-size:22px;letter-spacing:.15em;font-weight:700;color:var(--sage);margin-bottom:6px;font-family:var(--serif)}
+.setup-hint{font-size:11px;color:var(--muted);text-align:center;margin-bottom:16px}
+.setup-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--muted);font-size:12px}
+.setup-divider::before,.setup-divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* ── APP LAYOUT ──────────────────────────────────────────── */
+#app{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg)}
+.hdr{display:flex;align-items:center;gap:10px;padding:18px 20px 14px;background:var(--bg);position:sticky;top:0;z-index:30;border-bottom:1px solid var(--bdr)}
+.logo{width:32px;height:32px;flex-shrink:0}
+.appname{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--ink);letter-spacing:-.02em}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hdrdate{font-size:12px;font-weight:300;color:var(--muted)}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;transition:background .3s,opacity .3s}
+.sync-dot.local{background:var(--muted);opacity:.4}
+.sync-dot.saving{animation:blink .7s infinite}
+.sync-dot.error{background:#E05A4E}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.content{flex:1;overflow-y:auto;padding-bottom:84px}
+.panel{display:none;padding:20px}
+.panel.active{display:block}
+
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surf);border-top:1px solid var(--bdr);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:var(--sans);font-size:10px;font-weight:400;transition:color .15s;-webkit-tap-highlight-color:transparent}
+.nb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nb.active{color:var(--sage)}
+
+/* ── HOME ────────────────────────────────────────────────── */
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.daytitle{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);margin-bottom:20px;line-height:1.25}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.sc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:15px;box-shadow:var(--sh)}
+.sr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.slbl{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+.sico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.sico svg{width:17px;height:17px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sico.f{background:var(--fw)}.sico.f svg{stroke:var(--cf)}
+.sico.d{background:var(--dw)}.sico.d svg{stroke:var(--cd)}
+.sico.s{background:var(--sw)}.sico.s svg{stroke:var(--cs)}
+.sval{font-size:20px;font-family:var(--serif);font-weight:700;color:var(--ink);line-height:1.1;font-variant-numeric:tabular-nums}
+.ssub{font-size:11px;color:var(--muted);margin-top:2px}
+.seclbl{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.qgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px}
+.qbtn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);cursor:pointer;font-family:var(--sans);font-size:13px;color:var(--ink);font-weight:500;box-shadow:var(--sh);transition:transform .1s,opacity .15s;-webkit-tap-highlight-color:transparent}
+.qbtn:active{transform:scale(.96);opacity:.75}
+.qbtn svg{width:24px;height:24px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.qbtn.qf svg{stroke:var(--cf)}.qbtn.qd svg{stroke:var(--cd)}.qbtn.qs svg{stroke:var(--cs)}
+.tlitem{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--bdr)}
+.tlitem:last-child{border-bottom:none}
+.tldot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.tldot.f{background:var(--cf)}.tldot.d{background:var(--cd)}.tldot.s{background:var(--cs)}
+.tlinf{flex:1}.tltype{font-size:13px;font-weight:500;color:var(--ink)}.tldet{font-size:12px;color:var(--muted);margin-top:1px}
+.tltime{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tlago{font-size:11px;color:var(--muted)}
+
+/* ── LOG PANELS ──────────────────────────────────────────── */
+.loghdr{display:flex;align-items:center;margin-bottom:18px}
+.logtitle{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink)}
+.badge{margin-left:8px;background:var(--s-wash);color:var(--sage);font-size:12px;font-weight:600;padding:2px 8px;border-radius:100px}
+.addbtn{margin-left:auto;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:8px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .15s;-webkit-tap-highlight-color:transparent}
+.addbtn:active{opacity:.8}
+.addbtn svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round}
+.daygrp{margin-bottom:18px}
+.daylbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.ec{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh);margin-bottom:8px}
+.edot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.edot.f{background:var(--cf)}.edot.d{background:var(--cd)}.edot.s{background:var(--cs)}
+.emain{flex:1;min-width:0}
+.epri{font-size:14px;font-weight:500;color:var(--ink)}
+.esec{font-size:12px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.etime{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.eago{font-size:11px;color:var(--muted)}
+.edel{background:none;border:none;cursor:pointer;padding:4px;margin-left:2px;color:var(--muted);opacity:.4;transition:opacity .15s;line-height:1;-webkit-tap-highlight-color:transparent}
+.edel:hover{opacity:.85}
+.edel svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+/* ── FEED LIVE BANNER ────────────────────────────────────── */
+.slive{background:var(--fw);border:1px solid rgba(79,107,92,.18);border-radius:var(--r);padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.spulse{width:10px;height:10px;border-radius:50%;flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.sliveinf{flex:1}.slivelbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.slivetimer{font-size:26px;font-family:var(--serif);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1;margin-top:2px}
+.sstop{color:#fff;border:none;border-radius:100px;padding:9px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.empty{text-align:center;padding:52px 20px;color:var(--muted)}
+.empty-ico{font-size:36px;margin-bottom:10px;opacity:.55}
+.empty-lbl{font-size:14px}
+
+/* ── TOAST ───────────────────────────────────────────────── */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);font-family:var(--sans);font-size:13px;padding:10px 18px;border-radius:100px;z-index:300;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 40px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MODAL ───────────────────────────────────────────────── */
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:200;align-items:flex-end;justify-content:center}
+.mbg.open{display:flex}
+.msheet{width:100%;max-width:430px;background:var(--surf);border-radius:24px 24px 0 0;padding-bottom:max(env(safe-area-inset-bottom,0px),20px);animation:slideup .22s cubic-bezier(.32,1,.32,1)}
+@keyframes slideup{from{transform:translateY(110%)}to{transform:translateY(0)}}
+.mhandle{width:38px;height:4px;background:var(--bdr);border-radius:2px;margin:12px auto 18px}
+.mtitle{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--ink);padding:0 20px 14px;border-bottom:1px solid var(--bdr)}
+.mbody{padding:18px 20px 4px}
+.mfoot{display:flex;gap:10px;padding:8px 20px 0}
+.fld{margin-bottom:15px}
+.flbl{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.flbl span{font-weight:300;text-transform:none;letter-spacing:0}
+.finp{width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:12px;padding:11px 14px;font-family:var(--sans);font-size:15px;color:var(--ink);outline:none;transition:border-color .15s}
+.finp:focus{border-color:var(--sage)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.sbtn{flex:1;min-width:60px;padding:9px 6px;border:1.5px solid var(--bdr);border-radius:10px;background:var(--bg);font-family:var(--sans);font-size:13px;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.sbtn.on{background:var(--sage);border-color:var(--sage);color:#fff;font-weight:600}
+.bpri{flex:1;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:14px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.bpri:active{opacity:.8}
+.bcan{background:var(--surf2);color:var(--muted);border:none;border-radius:100px;padding:14px 20px;font-family:var(--sans);font-size:15px;cursor:pointer}
+::-webkit-scrollbar{width:0}
+</style>
+
+<!-- ── SETUP OVERLAY ───────────────────────────────────────── -->
+<div class="setup-ov" id="setupOv">
+  <div class="setup-card">
+    <div class="setup-logo">
+      <svg width="52" height="52" viewBox="0 0 100 100">
+        <rect width="100" height="100" rx="20" fill="var(--s-wash)"/>
+        <circle cx="50" cy="28" r="11" fill="var(--sage)"/>
+        <path d="M22 52 Q22 80 50 80 Q78 80 78 52" fill="none" stroke="var(--sage)" stroke-width="11" stroke-linecap="round"/>
+      </svg>
+      <span class="setup-title">보듬</span>
+      <span class="setup-sub">가족 코드로 파트너와<br>기록을 실시간 공유해요</span>
+    </div>
+
+    <div class="fld">
+      <div class="flbl">가족 코드 입력</div>
+      <input type="text" class="finp" id="inp-code" placeholder="파트너와 같은 코드를 입력하세요" autocomplete="off" spellcheck="false" style="text-transform:uppercase;letter-spacing:.08em">
+    </div>
+    <button class="bpri" style="width:100%;margin-bottom:10px" onclick="startWithCode()">시작하기</button>
+
+    <div class="setup-divider">또는</div>
+
+    <button onclick="generateCode()" style="width:100%;padding:13px;border:1.5px solid var(--bdr);border-radius:100px;background:var(--bg);font-family:var(--sans);font-size:14px;color:var(--muted);cursor:pointer">새 가족 코드 자동 생성</button>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6">생성 후 파트너에게 코드를 공유하면<br>같은 코드로 접속할 때 기록이 동기화돼요</p>
+  </div>
+</div>
+
+<!-- ── MAIN APP ────────────────────────────────────────────── -->
+<div id="app" style="display:none">
+  <header class="hdr">
+    <svg class="logo" viewBox="0 0 100 100">
+      <rect width="100" height="100" rx="20" fill="var(--s-wash)"/>
+      <circle cx="50" cy="28" r="11" fill="var(--sage)"/>
+      <path d="M22 52 Q22 80 50 80 Q78 80 78 52" fill="none" stroke="var(--sage)" stroke-width="11" stroke-linecap="round"/>
+    </svg>
+    <span class="appname">보듬</span>
+    <div class="hdr-right">
+      <div class="sync-dot local" id="syncDot" title="연결 중…"></div>
+      <span class="hdrdate" id="hdrDate"></span>
+    </div>
+  </header>
+
+  <main class="content">
+    <!-- 홈 -->
+    <div class="panel active" id="panel-home">
+      <h1 class="daytitle" id="homeTitle" style="font-size:19px;margin-bottom:16px">할 수 있다! 김이엘 육성기록</h1>
+
+      <!-- 직전 섹션 -->
+      <p class="seclbl" style="margin-bottom:10px">직전</p>
+      <div class="sgrid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:20px">
+        <div class="sc" onclick="goTab('feed')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+          <div class="sr"><div class="slbl">수유</div><div class="sico f"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div></div>
+          <div class="sval" id="h-fago" style="font-size:16px">—</div><div class="ssub" id="h-fsub">기록 없음</div>
+        </div>
+        <div class="sc" onclick="goTab('diaper')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+          <div class="sr"><div class="slbl">기저귀</div><div class="sico d"><svg viewBox="0 0 24 24"><path d="M2 9.5L5 6h14l3 3.5v5L19 18H5l-3-3.5V9.5z"/><path d="M2 9.5h5l3 3 3-3h5"/></svg></div></div>
+          <div class="sval" id="h-dago" style="font-size:16px">—</div><div class="ssub" id="h-dsub">기록 없음</div>
+        </div>
+        <div class="sc" onclick="goTab('sleep')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+          <div class="sr"><div class="slbl">수면</div><div class="sico s"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div>
+          <div class="sval" id="h-sago" style="font-size:16px">—</div><div class="ssub" id="h-ssub2">기록 없음</div>
+        </div>
+      </div>
+
+      <!-- 직전 24시간 섹션 -->
+      <p class="seclbl" style="margin-bottom:10px">직전 24시간</p>
+      <div class="sgrid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:20px">
+        <div class="sc" onclick="goTab('sleep')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+          <div class="sr"><div class="slbl">수면</div><div class="sico s"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div>
+          <div class="sval" id="h-stot">0분</div><div class="ssub" id="h-ssub">0회</div>
+        </div>
+        <div class="sc" onclick="goTab('feed')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+          <div class="sr"><div class="slbl">수유</div><div class="sico f"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
+          <div class="sval" id="h-fcnt">0</div><div class="ssub" id="h-fcntsub">회</div>
+        </div>
+        <div class="sc" onclick="goTab('diaper')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+          <div class="sr"><div class="slbl">기저귀</div><div class="sico d"><svg viewBox="0 0 24 24"><path d="M2 9.5L5 6h14l3 3.5v5L19 18H5l-3-3.5V9.5z"/><path d="M2 9.5h5l3 3 3-3h5"/></svg></div></div>
+          <div class="sval" id="h-dcnt">0</div><div class="ssub" id="h-dcntsub">회</div>
+        </div>
+      </div>
+      <p class="seclbl">빠른 기록</p>
+      <div class="qgrid">
+        <button class="qbtn qf" onclick="openM('feed')"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>수유</button>
+        <button class="qbtn qd" onclick="openM('diaper')"><svg viewBox="0 0 24 24"><path d="M2 9.5L5 6h14l3 3.5v5L19 18H5l-3-3.5V9.5z"/><path d="M2 9.5h5l3 3 3-3h5"/></svg>기저귀</button>
+        <button class="qbtn qs" onclick="openM('sleep')"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>수면</button>
+      </div>
+      <p class="seclbl">최근 기록</p>
+      <div id="recentList"><div class="empty"><div class="empty-lbl" style="font-size:13px">아직 기록이 없어요 🌿</div></div></div>
+    </div>
+
+    <!-- 수유 -->
+    <div class="panel" id="panel-feed">
+      <div class="loghdr"><span class="logtitle">수유</span><span class="badge" id="fbadge">0</span><button class="addbtn" onclick="openM('feed')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>추가</button></div>
+      <div class="slive" id="feedLiveBanner" style="display:none">
+        <div class="spulse" style="background:var(--cf)"></div>
+        <div class="sliveinf"><div class="slivelbl">수유 중</div><div class="slivetimer" id="feedLiveTimer">00:00</div></div>
+        <button class="sstop" style="background:var(--cf)" onclick="stopFeed()">종료</button>
+      </div>
+      <div id="feedList"><div class="empty"><div class="empty-ico">🍼</div><div class="empty-lbl">수유 기록이 없어요</div></div></div>
+    </div>
+
+    <!-- 기저귀 -->
+    <div class="panel" id="panel-diaper">
+      <div class="loghdr"><span class="logtitle">기저귀</span><span class="badge" id="dbadge">0</span><button class="addbtn" onclick="openM('diaper')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>추가</button></div>
+      <div id="diaperList"><div class="empty"><div class="empty-ico">👶</div><div class="empty-lbl">기저귀 기록이 없어요</div></div></div>
+    </div>
+
+    <!-- 수면 -->
+    <div class="panel" id="panel-sleep">
+      <div class="loghdr"><span class="logtitle">수면</span><span class="badge" id="sbadge">0</span><button class="addbtn" onclick="openM('sleep')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>추가</button></div>
+      <div id="sleepList"><div class="empty"><div class="empty-ico">🌙</div><div class="empty-lbl">수면 기록이 없어요</div></div></div>
+    </div>
+
+    <!-- 설정 -->
+    <div class="panel" id="panel-settings">
+      <p class="eyebrow">설정</p>
+      <h1 class="daytitle" style="font-size:20px;margin-bottom:24px">가족 코드</h1>
+      <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:12px">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">현재 가족 코드</div>
+        <div id="settingsCode" style="font-family:var(--serif);font-size:28px;font-weight:700;color:var(--sage);letter-spacing:.1em;margin-bottom:14px">—</div>
+        <button onclick="copyFamilyCode()" style="width:100%;background:var(--s-wash);color:var(--sage);border:none;border-radius:12px;padding:12px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          코드 복사
+        </button>
+      </div>
+      <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 20px;box-shadow:var(--sh);margin-bottom:24px">
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">다른 기기에서 접속할 때 위 코드를 입력하면<br>같은 기록을 공유할 수 있어요.</div>
+      </div>
+      <button onclick="changeFamily()" style="width:100%;background:var(--surf2);color:var(--muted);border:1px solid var(--bdr);border-radius:100px;padding:14px;font-family:var(--sans);font-size:14px;cursor:pointer">다른 가족 코드로 변경</button>
+    </div>
+  </main>
+
+  <nav class="bnav">
+    <button class="nb active" id="nav-home" onclick="goTab('home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>홈</button>
+    <button class="nb" id="nav-feed" onclick="goTab('feed')"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>수유</button>
+    <button class="nb" id="nav-diaper" onclick="goTab('diaper')"><svg viewBox="0 0 24 24"><path d="M2 9.5L5 6h14l3 3.5v5L19 18H5l-3-3.5V9.5z"/><path d="M2 9.5h5l3 3 3-3h5"/></svg>기저귀</button>
+    <button class="nb" id="nav-sleep" onclick="goTab('sleep')"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>수면</button>
+    <button class="nb" id="nav-settings" onclick="goTab('settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>설정</button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- 수유 모달 -->
+<div class="mbg" id="modal-feed">
+  <div class="msheet">
+    <div class="mhandle"></div><div class="mtitle">수유 기록</div>
+    <div class="mbody">
+      <div class="fld" id="row-ftime" style="display:none"><div class="flbl">시작 시간</div><input type="datetime-local" class="finp" id="f-start-edit"></div>
+      <div class="fld" id="row-ftimeend" style="display:none"><div class="flbl">종료 시간</div><input type="datetime-local" class="finp" id="f-end-edit"></div>
+      <div class="fld"><div class="flbl">방법</div><div class="seg" id="seg-ft"><button class="sbtn on" data-v="breast" onclick="pickFeedType(this,'breast')">모유</button><button class="sbtn" data-v="bottle" onclick="pickFeedType(this,'bottle')">분유</button><button class="sbtn" data-v="mixed" onclick="pickFeedType(this,'mixed')">혼합</button></div><input type="hidden" id="f-type" value="breast"></div>
+      <div class="fld" id="row-subtype"><div class="flbl">수유 방식</div><div class="seg" id="seg-fsub"><button class="sbtn on" data-v="direct" onclick="pickFeedSub(this,'direct')">직수</button><button class="sbtn" data-v="pumped" onclick="pickFeedSub(this,'pumped')">유축</button></div><input type="hidden" id="f-subtype" value="direct"></div>
+      <div class="fld" id="row-amount"><div class="flbl">수유량 (ml)</div><input type="number" class="finp" id="f-amount" placeholder="예: 120" min="0" max="600" step="5"></div>
+      <div class="fld" id="row-side"><div class="flbl">방향</div><div class="seg" id="seg-fs"><button class="sbtn on" data-v="left" onclick="pick(this,'seg-fs','f-side')">왼쪽</button><button class="sbtn" data-v="right" onclick="pick(this,'seg-fs','f-side')">오른쪽</button></div><input type="hidden" id="f-side" value="left"></div>
+      <div class="fld"><div class="flbl">메모 <span>— 선택</span></div><input type="text" class="finp" id="f-note" placeholder="특이사항 등"></div>
+    </div>
+    <div class="mfoot"><button class="bcan" onclick="closeM('feed')">취소</button><button class="bpri" onclick="saveFeed()">타이머 시작</button></div>
+  </div>
+</div>
+
+<!-- 기저귀 모달 -->
+<div class="mbg" id="modal-diaper">
+  <div class="msheet">
+    <div class="mhandle"></div><div class="mtitle">기저귀 기록</div>
+    <div class="mbody">
+      <div class="fld"><div class="flbl">시간</div><input type="datetime-local" class="finp" id="d-time"></div>
+      <div class="fld"><div class="flbl">종류</div><div class="seg" id="seg-dt"><button class="sbtn on" data-v="wet" onclick="pick(this,'seg-dt','d-type')">소변</button><button class="sbtn" data-v="soiled" onclick="pick(this,'seg-dt','d-type')">대변</button><button class="sbtn" data-v="both" onclick="pick(this,'seg-dt','d-type')">둘 다</button></div><input type="hidden" id="d-type" value="wet"></div>
+      <div class="fld"><div class="flbl">색상 <span>— 선택</span></div><div class="seg" id="seg-dc"><button class="sbtn on" data-v="" onclick="pick(this,'seg-dc','d-color')">—</button><button class="sbtn" data-v="yellow" onclick="pick(this,'seg-dc','d-color')">노란색</button><button class="sbtn" data-v="green" onclick="pick(this,'seg-dc','d-color')">녹색</button><button class="sbtn" data-v="other" onclick="pick(this,'seg-dc','d-color')">기타</button></div><input type="hidden" id="d-color" value=""></div>
+      <div class="fld"><div class="flbl">메모 <span>— 선택</span></div><input type="text" class="finp" id="d-note" placeholder="특이사항 등"></div>
+    </div>
+    <div class="mfoot"><button class="bcan" onclick="closeM('diaper')">취소</button><button class="bpri" onclick="saveDiaper()">저장</button></div>
+  </div>
+</div>
+
+<!-- 수면 모달 -->
+<div class="mbg" id="modal-sleep">
+  <div class="msheet">
+    <div class="mhandle"></div><div class="mtitle">수면 기록</div>
+    <div class="mbody">
+      <div class="fld"><div class="flbl">수면 시작</div><input type="datetime-local" class="finp" id="s-start"></div>
+      <div class="fld"><div class="flbl">수면 종료</div><input type="datetime-local" class="finp" id="s-end"></div>
+      <div class="fld"><div class="flbl">장소 <span>— 선택</span></div><div class="seg" id="seg-sp"><button class="sbtn on" data-v="" onclick="pick(this,'seg-sp','s-place')">—</button><button class="sbtn" data-v="crib" onclick="pick(this,'seg-sp','s-place')">침대</button><button class="sbtn" data-v="carrier" onclick="pick(this,'seg-sp','s-place')">캐리어</button><button class="sbtn" data-v="arms" onclick="pick(this,'seg-sp','s-place')">품</button></div><input type="hidden" id="s-place" value=""></div>
+    </div>
+    <div class="mfoot"><button class="bcan" onclick="closeM('sleep')">취소</button><button class="bpri" onclick="saveSleep()">저장</button></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// ⬇️  FIREBASE 설정 — Firebase 콘솔에서 복사한 값으로 교체하세요
+// ════════════════════════════════════════════════════════════
+var firebaseConfig = {
+  apiKey:            "AIzaSyCGLZ0pOpZUgZTNOwSQEMSFXfAzm3iwijo",
+  authDomain:        "kimel-54750.firebaseapp.com",
+  projectId:         "kimel-54750",
+  storageBucket:     "kimel-54750.firebasestorage.app",
+  messagingSenderId: "757482265597",
+  appId:             "1:757482265597:web:30754353e74466c3465794"
+};
+// ════════════════════════════════════════════════════════════
+
+(function () {
+  // ── CONSTANTS ─────────────────────────────────────────────
+  var LOCAL_CODE_KEY = 'bodeum_family_code';
+  var LOCAL_DB_KEY   = 'bodeum_local_v1';
+  var COLLECTION     = 'families';
+
+  // ── STATE ─────────────────────────────────────────────────
+  var DB = { feeds: [], diapers: [], sleeps: [] };
+  var db = null;
+  var docRef = null;
+  var unsubscribe = null;
+  var isOnline = false;
+  var _feedTimer = null;
+  var _feedTimerId = null;
+  var _toastTO = null;
+  var _skipNextSnapshot = false; // suppress echo after our own save
+  var _editId = null;   // id of record being edited (null = new)
+  var _editType = null; // 'feeds' | 'diapers' | 'sleeps'
+
+  function ensure() {
+    if (!Array.isArray(DB.feeds))   DB.feeds   = [];
+    if (!Array.isArray(DB.diapers)) DB.diapers = [];
+    if (!Array.isArray(DB.sleeps))  DB.sleeps  = [];
+  }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
+
+  // ── FIREBASE INIT ─────────────────────────────────────────
+  function initFirebase() {
+    if (firebaseConfig.apiKey === '여기에-apiKey') {
+      toast('⚠️ Firebase 설정을 입력해주세요');
+      return false;
+    }
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      db.enablePersistence({ synchronizeTabs: true }).catch(function() {});
+      return true;
+    } catch (e) {
+      toast('Firebase 초기화 실패: ' + e.message);
+      return false;
+    }
+  }
+
+  // ── SETUP OVERLAY ─────────────────────────────────────────
+  window.generateCode = function() {
+    var words = ['ROSE','LILY','FERN','MINT','OAK','DAWN','DEW','NEST','LEAF','BEAM'];
+    var nums  = Math.floor(1000 + Math.random() * 9000);
+    var code  = words[Math.floor(Math.random() * words.length)] + '-' + nums;
+    document.getElementById('inp-code').value = code;
+  };
+
+  window.startWithCode = function() {
+    var raw = (document.getElementById('inp-code').value || '').trim().toUpperCase();
+    if (!raw) { toast('가족 코드를 입력해주세요'); return; }
+    if (!initFirebase()) return;
+    try { localStorage.setItem(LOCAL_CODE_KEY, raw); } catch(_) {}
+    launchApp(raw);
+  };
+
+  function launchApp(code) {
+    document.getElementById('setupOv').style.display = 'none';
+    document.getElementById('app').style.display = '';
+    docRef = db.collection(COLLECTION).doc(code);
+    setDate();
+    subscribeToData();
+    setInterval(renderHome, 60000);
+  }
+
+  // ── FIRESTORE REAL-TIME LISTENER ──────────────────────────
+  function subscribeToData() {
+    if (unsubscribe) unsubscribe();
+    updateSyncDot('connecting');
+    unsubscribe = docRef.onSnapshot({ includeMetadataChanges: true }, function(snapshot) {
+      if (snapshot.metadata.hasPendingWrites) return; // our own write — skip
+      if (_skipNextSnapshot) { _skipNextSnapshot = false; return; }
+      var data = snapshot.data();
+      if (data) {
+        DB = { feeds: data.feeds || [], diapers: data.diapers || [], sleeps: data.sleeps || [] };
+        ensure();
+      } else {
+        // Document doesn't exist yet — empty state
+        DB = { feeds: [], diapers: [], sleeps: [] };
+      }
+      isOnline = !snapshot.metadata.fromCache;
+      updateSyncDot(isOnline ? 'online' : 'cache');
+      renderAll();
+      if (!findActiveFeed()) restartFeedTimer(); else {
+        var af = findActiveFeed();
+        if (_feedTimerId !== af.id) startFeedTimer(af);
+      }
+    }, function(err) {
+      updateSyncDot('error');
+      toast('연결 오류: ' + err.message);
+      loadLocal();
+      renderAll();
+    });
+  }
+
+  // ── SAVE ──────────────────────────────────────────────────
+  function saveDB() {
+    setSaving(true);
+    if (docRef) {
+      _skipNextSnapshot = false;
+      return docRef.set({ feeds: DB.feeds, diapers: DB.diapers, sleeps: DB.sleeps })
+        .then(function() {
+          setSaving(false);
+        })
+        .catch(function(e) {
+          setSaving(false);
+          toast('저장 실패 — ' + e.message);
+          saveLocal();
+        });
+    }
+    setSaving(false);
+    saveLocal();
+    return Promise.resolve();
+  }
+  function saveLocal() { try { localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(DB)); } catch(_) {} }
+  function loadLocal() {
+    try { var r = localStorage.getItem(LOCAL_DB_KEY); if (r) DB = JSON.parse(r); } catch(_) {}
+    ensure();
+  }
+
+  // ── SYNC DOT ──────────────────────────────────────────────
+  function updateSyncDot(state) {
+    var dot = g('syncDot'); if (!dot) return;
+    dot.classList.remove('local', 'saving', 'error');
+    if (state === 'online')      { dot.style.background = ''; dot.title = '실시간 공유 중'; }
+    else if (state === 'cache')  { dot.classList.add('local'); dot.title = '오프라인 — 재연결 시 동기화'; }
+    else if (state === 'connecting') { dot.classList.add('saving'); dot.title = '연결 중…'; }
+    else if (state === 'error')  { dot.classList.add('error'); dot.title = '연결 오류'; }
+  }
+  function setSaving(on) {
+    var dot = g('syncDot'); if (!dot) return;
+    if (on) dot.classList.add('saving'); else dot.classList.remove('saving');
+  }
+
+  // ── TOAST ─────────────────────────────────────────────────
+  function toast(msg) {
+    var el = g('toast'); if (!el) return;
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(_toastTO);
+    _toastTO = setTimeout(function() { el.classList.remove('show'); }, 2800);
+  }
+
+  // ── TIME HELPERS ──────────────────────────────────────────
+  function nowISO() {
+    var d = new Date(), off = d.getTimezoneOffset();
+    return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
+  }
+  function p2(n) { return n < 10 ? '0' + n : '' + n; }
+  function fmt(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return p2(d.getHours()) + ':' + p2(d.getMinutes()) + ':' + p2(d.getSeconds());
+  }
+  function agoStr(iso) {
+    if (!iso) return '—';
+    var min = (Date.now() - new Date(iso).getTime()) / 60000;
+    if (min < 1) return '방금 전';
+    if (min < 60) return Math.floor(min) + '분 전';
+    var hh = Math.floor(min / 60), mm = Math.floor(min % 60);
+    if (hh < 24) return mm ? hh + '시간 ' + mm + '분 전' : hh + '시간 전';
+    return Math.floor(hh / 24) + '일 전';
+  }
+  function durStr(ms) {
+    var ts = Math.floor(ms / 1000);
+    var h = Math.floor(ts / 3600), m = Math.floor((ts % 3600) / 60), s = ts % 60;
+    if (h > 0) return m ? h + '시간 ' + m + '분' : h + '시간';
+    if (m > 0) return s ? m + '분 ' + s + '초' : m + '분';
+    return s + '초';
+  }
+  function dayLabel(iso) {
+    var d = new Date(iso), t = new Date(), y = new Date(t); y.setDate(y.getDate() - 1);
+    if (d.toDateString() === t.toDateString()) return '오늘';
+    if (d.toDateString() === y.toDateString()) return '어제';
+    return (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+  }
+  function groupByDay(arr, getter) {
+    var map = [], keys = [];
+    arr.forEach(function(x) {
+      var k = dayLabel(getter(x)), idx = keys.indexOf(k);
+      if (idx < 0) { keys.push(k); map.push([k, [x]]); } else map[idx][1].push(x);
+    });
+    return map;
+  }
+
+  // ── RENDER ────────────────────────────────────────────────
+  function g(id) { return document.getElementById(id); }
+
+  function setDate() {
+    var d = new Date(), days = ['일','월','화','수','목','금','토'];
+    if (g('hdrDate')) g('hdrDate').textContent = d.getFullYear() + '.' + (d.getMonth()+1) + '.' + d.getDate() + ' (' + days[d.getDay()] + ')';
+  }
+
+  function renderHome() {
+    var now = Date.now();
+    var h24 = 24 * 60 * 60 * 1000;
+    var TF = { breast:'모유', bottle:'분유', mixed:'혼합' };
+    var TD = { wet:'소변', soiled:'대변', both:'소변+대변' };
+
+    var lf = DB.feeds.slice().sort(function(a,b){ return new Date(b.start||b.time)-new Date(a.start||a.time); })[0];
+    g('h-fago').textContent = lf ? agoStr(lf.start||lf.time) : '—';
+    g('h-fsub').textContent = lf ? fmt(lf.start||lf.time) : '기록 없음';
+
+    var ld = DB.diapers.slice().sort(function(a,b){ return new Date(b.time)-new Date(a.time); })[0];
+    g('h-dago').textContent = ld ? agoStr(ld.time) : '—';
+    g('h-dsub').textContent = ld ? fmt(ld.time) : '기록 없음';
+
+    var ls = DB.sleeps.filter(function(s){ return s.end; }).sort(function(a,b){ return new Date(b.start)-new Date(a.start); })[0];
+    g('h-sago').textContent = ls ? agoStr(ls.start) : '—';
+    g('h-ssub2').textContent = ls ? durStr(new Date(ls.end)-new Date(ls.start)) : '기록 없음';
+
+    var tsl = DB.sleeps.filter(function(s){ return s.end && (now - new Date(s.start).getTime()) <= h24; });
+    var ms = 0; tsl.forEach(function(s){ ms += new Date(s.end)-new Date(s.start); });
+    g('h-stot').textContent = ms > 0 ? durStr(ms) : '0분';
+    g('h-ssub').textContent = tsl.length + '회';
+
+    var tf = DB.feeds.filter(function(f){ return (now - new Date(f.start||f.time).getTime()) <= h24; });
+    g('h-fcnt').textContent = tf.length;
+    var tml = tf.reduce(function(s,f){ return s+(f.amount||0); }, 0);
+    g('h-fcntsub').textContent = tml > 0 ? '총 ' + tml + 'ml' : '회';
+
+    var td24 = DB.diapers.filter(function(d){ return (now - new Date(d.time).getTime()) <= h24; });
+    g('h-dcnt').textContent = td24.length;
+    g('h-dcntsub').textContent = '회';
+
+    var all = [];
+    DB.feeds.forEach(function(f) {
+      var t = f.start||f.time;
+      var dur = (f.start && f.end) ? ' · ' + durStr(new Date(f.end)-new Date(f.start)) : '';
+      all.push({ t:'f', time:t, label:'수유 — '+(TF[f.type]||''), sub:(f.amount?f.amount+'ml':'')+dur });
+    });
+    DB.diapers.forEach(function(d){ all.push({ t:'d', time:d.time, label:'기저귀 — '+(TD[d.type]||''), sub:d.note||'' }); });
+    DB.sleeps.filter(function(s){ return s.end; }).forEach(function(s){ all.push({ t:'s', time:s.start, label:'수면', sub:durStr(new Date(s.end)-new Date(s.start)) }); });
+    all.sort(function(a,b){ return new Date(b.time)-new Date(a.time); });
+
+    var el = g('recentList');
+    if (!all.length) { el.innerHTML = '<div class="empty"><div class="empty-lbl" style="font-size:13px">아직 기록이 없어요 🌿</div></div>'; return; }
+    el.innerHTML = all.slice(0,10).map(function(e) {
+      return '<div class="tlitem"><div class="tldot '+e.t+'"></div><div class="tlinf"><div class="tltype">'+e.label+'</div>'+(e.sub?'<div class="tldet">'+e.sub+'</div>':'')+'</div><div class="tltime">'+fmt(e.time)+'<br><span class="tlago">'+agoStr(e.time)+'</span></div></div>';
+    }).join('');
+  }
+
+  function renderFeeds() {
+    var sorted = DB.feeds.slice().sort(function(a,b){ return new Date(b.start||b.time)-new Date(a.start||a.time); });
+    var done = sorted.filter(function(f){ return f.end || f.time; });
+    g('fbadge').textContent = sorted.length;
+
+    var af = findActiveFeed();
+    var fb = g('feedLiveBanner');
+    fb.style.display = af ? 'flex' : 'none';
+    if (af && _feedTimerId !== af.id) startFeedTimer(af);
+    if (!af && _feedTimer) stopFeedTimer();
+
+    var el = g('feedList');
+    if (!done.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">🍼</div><div class="empty-lbl">수유 기록이 없어요</div></div>'; return; }
+    var TF = { breast:'모유', bottle:'분유', mixed:'혼합' };
+    var TSU = { direct:'직수', pumped:'유축' };
+    var TS = { left:'왼쪽', right:'오른쪽' };
+    el.innerHTML = groupByDay(done, function(f){ return f.start||f.time; }).map(function(g2) {
+      return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(f) {
+        var t = f.start||f.time;
+        var durTxt = (f.start&&f.end) ? durStr(new Date(f.end)-new Date(f.start)) : '';
+        var timeRange = (f.start&&f.end) ? fmt(f.start)+' → '+fmt(f.end) : fmt(t);
+        var typeLbl = (TF[f.type]||'수유')+(f.subtype?' · '+(TSU[f.subtype]||''):'');
+        var details = [f.amount?f.amount+'ml':'', durTxt, f.side?(TS[f.side]||''):'', f.note||''].filter(Boolean).join(' · ');
+        return '<div class="ec" onclick="openEdit(\'feeds\',\''+f.id+'\')" style="cursor:pointer"><div class="edot f"></div><div class="emain"><div class="epri">'+typeLbl+'</div><div class="esec">'+(timeRange+(details?' · '+details:''))+'</div></div><div class="etime">'+fmt(t)+'<br><span class="eago">'+agoStr(t)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'feeds\',\''+f.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+      }).join('')+'</div>';
+    }).join('');
+  }
+
+  function renderDiapers() {
+    var sorted = DB.diapers.slice().sort(function(a,b){ return new Date(b.time)-new Date(a.time); });
+    g('dbadge').textContent = sorted.length;
+    var el = g('diaperList');
+    if (!sorted.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">👶</div><div class="empty-lbl">기저귀 기록이 없어요</div></div>'; return; }
+    var TD = { wet:'소변', soiled:'대변', both:'소변 + 대변' }, TC = { yellow:'노란색', green:'녹색', other:'기타' };
+    el.innerHTML = groupByDay(sorted, function(d){ return d.time; }).map(function(g2) {
+      return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(d) {
+        var sub = [d.color?TC[d.color]:'', d.note||''].filter(Boolean).join(' · ');
+        return '<div class="ec" onclick="openEdit(\'diapers\',\''+d.id+'\')" style="cursor:pointer"><div class="edot d"></div><div class="emain"><div class="epri">'+(TD[d.type]||'기저귀')+'</div><div class="esec">'+(sub||'&nbsp;')+'</div></div><div class="etime">'+fmt(d.time)+'<br><span class="eago">'+agoStr(d.time)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'diapers\',\''+d.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+      }).join('')+'</div>';
+    }).join('');
+  }
+
+  function renderSleeps() {
+    var done = DB.sleeps.filter(function(s){ return s.end; }).sort(function(a,b){ return new Date(b.start)-new Date(a.start); });
+    g('sbadge').textContent = done.length;
+    var el = g('sleepList');
+    if (!done.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">🌙</div><div class="empty-lbl">수면 기록이 없어요</div></div>'; return; }
+    var PL = { crib:'침대', carrier:'캐리어', arms:'품' };
+    el.innerHTML = groupByDay(done, function(s){ return s.start; }).map(function(g2) {
+      return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(s) {
+        return '<div class="ec" onclick="openEdit(\'sleeps\',\''+s.id+'\')" style="cursor:pointer"><div class="edot s"></div><div class="emain"><div class="epri">'+durStr(new Date(s.end)-new Date(s.start))+'</div><div class="esec">'+fmt(s.start)+' → '+fmt(s.end)+(s.place?' · '+(PL[s.place]||''):'')+'</div></div><div class="etime">'+fmt(s.start)+'<br><span class="eago">'+agoStr(s.start)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'sleeps\',\''+s.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+      }).join('')+'</div>';
+    }).join('');
+  }
+
+  function renderAll() { renderHome(); renderFeeds(); renderDiapers(); renderSleeps(); }
+
+  // ── FEED TIMER ────────────────────────────────────────────
+  function findActiveFeed() {
+    for (var i = 0; i < DB.feeds.length; i++) if (DB.feeds[i].start && !DB.feeds[i].end) return DB.feeds[i];
+    return null;
+  }
+  function startFeedTimer(entry) {
+    stopFeedTimer(); _feedTimerId = entry.id;
+    function tick() {
+      var el = g('feedLiveTimer'); if (!el) return;
+      var e = Date.now() - new Date(entry.start).getTime();
+      var h = Math.floor(e/3600000), m = Math.floor((e%3600000)/60000), s = Math.floor((e%60000)/1000);
+      el.textContent = h > 0 ? h+':'+p2(m)+':'+p2(s) : p2(m)+':'+p2(s);
+    }
+    tick(); _feedTimer = setInterval(tick, 1000);
+  }
+  function stopFeedTimer() { if (_feedTimer) { clearInterval(_feedTimer); _feedTimer = null; _feedTimerId = null; } }
+  function restartFeedTimer() { var a = findActiveFeed(); if (a && _feedTimerId !== a.id) startFeedTimer(a); }
+
+  // ── ACTIONS ───────────────────────────────────────────────
+  window.delE = function(col, id) {
+    DB[col] = DB[col].filter(function(e){ return e.id !== id; });
+    saveDB().then(renderAll);
+  };
+
+  window.stopFeed = function() {
+    var a = findActiveFeed();
+    if (a) { a.end = new Date().toISOString(); stopFeedTimer(); saveDB().then(renderAll); }
+  };
+
+  window.goTab = function(tab) {
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('active'); });
+    g('panel-'+tab).classList.add('active');
+    g('nav-'+tab).classList.add('active');
+    if (tab === 'settings') {
+      var code = '';
+      try { code = localStorage.getItem('bodeum_family_code') || ''; } catch(_) {}
+      g('settingsCode').textContent = code || '—';
+    }
+    renderAll();
+  };
+
+  window.copyFamilyCode = function() {
+    var code = '';
+    try { code = localStorage.getItem('bodeum_family_code') || ''; } catch(_) {}
+    if (!code) { toast('코드가 없어요'); return; }
+    navigator.clipboard.writeText(code).then(function(){
+      toast('코드가 복사됐어요 ✓');
+    }).catch(function(){
+      toast(code);
+    });
+  };
+
+  window.changeFamily = function() {
+    if (!confirm('다른 가족 코드로 변경하시겠어요?\n현재 기기의 연결이 해제됩니다.')) return;
+    if (unsubscribe) { try { unsubscribe(); } catch(_) {} unsubscribe = null; }
+    try { localStorage.removeItem('bodeum_family_code'); } catch(_) {}
+    g('app').style.display = 'none';
+    g('setupOv').style.display = 'flex';
+  };
+
+  // ── MODAL ─────────────────────────────────────────────────
+  function toLocalISO(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    var pad = function(n){ return n < 10 ? '0'+n : ''+n; };
+    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+
+  window.openM = function(type) {
+    _editId = null; _editType = null;
+    var n = nowISO();
+    if (type === 'feed') {
+      g('f-amount').value = ''; g('f-note').value = '';
+      rSeg('seg-ft','f-type','breast');
+      rSeg('seg-fsub','f-subtype','direct');
+      rSeg('seg-fs','f-side','left');
+      updateFeedFields();
+      g('row-ftime').style.display = 'none';
+      g('row-ftimeend').style.display = 'none';
+      g('modal-feed').querySelector('.mtitle').textContent = '수유 기록';
+      g('modal-feed').querySelector('.bpri').textContent = '타이머 시작';
+    } else if (type === 'diaper') {
+      g('d-time').value = n; g('d-note').value = '';
+      rSeg('seg-dt','d-type','wet'); rSeg('seg-dc','d-color','');
+      g('modal-diaper').querySelector('.mtitle').textContent = '기저귀 기록';
+      g('modal-diaper').querySelector('.bpri').textContent = '저장';
+    } else {
+      g('s-start').value = n; g('s-end').value = ''; rSeg('seg-sp','s-place','');
+      g('modal-sleep').querySelector('.mtitle').textContent = '수면 기록';
+      g('modal-sleep').querySelector('.bpri').textContent = '저장';
+    }
+    g('modal-'+type).classList.add('open');
+  };
+  window.closeM = function(type) { _editId = null; _editType = null; g('modal-'+type).classList.remove('open'); };
+
+  window.openEdit = function(collection, id) {
+    var rec = null;
+    DB[collection].forEach(function(r){ if (r.id === id) rec = r; });
+    if (!rec) return;
+    _editId = id; _editType = collection;
+    if (collection === 'feeds') {
+      if (!rec.end) { toast('진행 중인 수유는 종료 후 수정할 수 있어요'); return; }
+      rSeg('seg-ft','f-type', rec.type||'breast');
+      rSeg('seg-fsub','f-subtype', rec.subtype||'direct');
+      rSeg('seg-fs','f-side', rec.side||'left');
+      g('f-amount').value = rec.amount || '';
+      g('f-note').value = rec.note || '';
+      updateFeedFields();
+      g('f-start-edit').value = toLocalISO(rec.start || rec.time);
+      g('f-end-edit').value = toLocalISO(rec.end);
+      g('row-ftime').style.display = '';
+      g('row-ftimeend').style.display = '';
+      g('modal-feed').querySelector('.mtitle').textContent = '수유 수정';
+      g('modal-feed').querySelector('.bpri').textContent = '수정 저장';
+      g('modal-feed').classList.add('open');
+    } else if (collection === 'diapers') {
+      g('d-time').value = toLocalISO(rec.time);
+      rSeg('seg-dt','d-type', rec.type||'wet');
+      rSeg('seg-dc','d-color', rec.color||'');
+      g('d-note').value = rec.note || '';
+      g('modal-diaper').querySelector('.mtitle').textContent = '기저귀 수정';
+      g('modal-diaper').querySelector('.bpri').textContent = '수정 저장';
+      g('modal-diaper').classList.add('open');
+    } else if (collection === 'sleeps') {
+      g('s-start').value = toLocalISO(rec.start);
+      g('s-end').value = toLocalISO(rec.end);
+      rSeg('seg-sp','s-place', rec.place||'');
+      g('modal-sleep').querySelector('.mtitle').textContent = '수면 수정';
+      g('modal-sleep').querySelector('.bpri').textContent = '수정 저장';
+      g('modal-sleep').classList.add('open');
+    }
+  };
+
+  window.pick = function(btn, segId, hidId) {
+    g(segId).querySelectorAll('.sbtn').forEach(function(b){ b.classList.remove('on'); });
+    btn.classList.add('on'); g(hidId).value = btn.getAttribute('data-v');
+  };
+  function rSeg(segId, hidId, def) {
+    g(hidId).value = def;
+    g(segId).querySelectorAll('.sbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v')===def); });
+  }
+
+  document.querySelectorAll('.mbg').forEach(function(bg) {
+    bg.addEventListener('click', function(e){ if (e.target===bg) closeM(bg.id.replace('modal-','')); });
+  });
+
+  // ── FEED FIELD LOGIC ──────────────────────────────────────
+  function updateFeedFields() {
+    var ftype = g('f-type').value;
+    var fsub  = g('f-subtype').value;
+    var isBreast  = ftype === 'breast';
+    var isDirect  = isBreast && fsub === 'direct';
+    g('row-subtype').style.display = isBreast ? '' : 'none';
+    g('row-amount').style.display  = isDirect  ? 'none' : '';
+    g('row-side').style.display    = isDirect  ? '' : 'none';
+  }
+  window.pickFeedType = function(btn, val) { pick(btn,'seg-ft','f-type'); updateFeedFields(); };
+  window.pickFeedSub  = function(btn, val) { pick(btn,'seg-fsub','f-subtype'); updateFeedFields(); };
+
+  // ── SAVE ACTIONS ──────────────────────────────────────────
+  window.saveFeed = function() {
+    var ftype = g('f-type').value;
+    var fsub  = ftype === 'breast' ? (g('f-subtype').value||'direct') : null;
+    var isDirect = ftype==='breast' && fsub==='direct';
+    var amt   = isDirect ? null : (parseInt(g('f-amount').value,10)||null);
+    var side  = isDirect ? (g('f-side').value||null) : null;
+    var note  = g('f-note').value.trim()||null;
+    if (_editId) {
+      var sv = g('f-start-edit').value;
+      var ev = g('f-end-edit').value;
+      if (sv && ev && new Date(ev) <= new Date(sv)) { toast('종료 시간이 시작보다 늦어야 해요'); return; }
+      DB.feeds = DB.feeds.map(function(f){
+        if (f.id !== _editId) return f;
+        var upd = { type:ftype, subtype:fsub, amount:amt, side:side, note:note };
+        if (sv) upd.start = new Date(sv).toISOString();
+        if (ev) upd.end   = new Date(ev).toISOString();
+        return Object.assign({}, f, upd);
+      });
+      closeM('feed'); saveDB().then(renderAll); return;
+    }
+    var now = new Date().toISOString();
+    DB.feeds.forEach(function(f){ if (f.start && !f.end) f.end = new Date().toISOString(); });
+    stopFeedTimer();
+    DB.feeds.push({ id:uid(), start:now, end:null, type:ftype, subtype:fsub, amount:amt, side:side, note:note });
+    closeM('feed');
+    saveDB().then(function(){ goTab('feed'); });
+  };
+
+  window.saveDiaper = function() {
+    var t = g('d-time').value; if (!t) return;
+    var rec = { time:new Date(t).toISOString(), type:g('d-type').value, color:g('d-color').value||null, note:g('d-note').value.trim()||null };
+    if (_editId) {
+      DB.diapers = DB.diapers.map(function(d){ return d.id === _editId ? Object.assign({}, d, rec) : d; });
+      closeM('diaper'); saveDB().then(renderAll); return;
+    }
+    DB.diapers.push(Object.assign({ id:uid() }, rec));
+    closeM('diaper'); saveDB().then(renderAll);
+  };
+
+  window.saveSleep = function() {
+    var sv = g('s-start').value; if (!sv) { toast('시작 시간을 입력해주세요'); return; }
+    var ev = g('s-end').value;   if (!ev) { toast('종료 시간을 입력해주세요'); return; }
+    if (new Date(ev) <= new Date(sv)) { toast('종료 시간이 시작보다 늦어야 해요'); return; }
+    var rec = { start:new Date(sv).toISOString(), end:new Date(ev).toISOString(), place:g('s-place').value||null };
+    if (_editId) {
+      DB.sleeps = DB.sleeps.map(function(s){ return s.id === _editId ? Object.assign({}, s, rec) : s; });
+      closeM('sleep'); saveDB().then(renderAll); return;
+    }
+    DB.sleeps.push(Object.assign({ id:uid() }, rec));
+    closeM('sleep'); saveDB().then(renderAll);
+  };
+
+  // ── BOOT ──────────────────────────────────────────────────
+  // Check for saved family code → skip setup screen
+  var savedCode = '';
+  try { savedCode = localStorage.getItem(LOCAL_CODE_KEY) || ''; } catch(_) {}
+  if (savedCode) {
+    if (initFirebase()) { launchApp(savedCode); }
+  }
+  // Otherwise setup overlay stays visible
+})();
+</script>
+</body>
+</html>
