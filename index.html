@@ -727,7 +727,14 @@ var firebaseConfig = {
 
     var tf = DB.feeds.filter(function(f){ return (now - new Date(f.start||f.time).getTime()) <= h24; });
     g('h-fcnt').textContent = tf.length;
-    var tml = tf.reduce(function(s,f){ return s+(f.consumedAmount!=null?f.consumedAmount:(f.amount||0)); }, 0);
+    var tml = tf.reduce(function(s,f){
+      var famt = f.amount;
+      if (famt == null && f.type==='breast' && f.subtype==='direct' && f.start && f.end) {
+        var telms = new Date(f.end) - new Date(f.start);
+        famt = Math.round(Math.round(telms/10000) * 50/90);
+      }
+      return s + (f.consumedAmount != null ? f.consumedAmount : (famt || 0));
+    }, 0);
     g('h-fcntsub').textContent = tml > 0 ? '섭취 ' + tml + 'ml' : '회';
 
     var td24 = DB.diapers.filter(function(d){ return (now - new Date(d.time).getTime()) <= h24; });
@@ -1074,7 +1081,12 @@ var firebaseConfig = {
       rSeg('seg-ft','f-type', rec.type||'breast');
       rSeg('seg-fsub','f-subtype', rec.subtype||'direct');
       rSeg('seg-fs','f-side', rec.side||'left');
-      g('f-amount').value = rec.amount != null ? rec.amount : '';
+      var preAmt = rec.amount;
+      if (preAmt == null && rec.type==='breast' && rec.subtype==='direct' && rec.start && rec.end) {
+        var preElms = new Date(rec.end) - new Date(rec.start);
+        preAmt = Math.round(Math.round(preElms/10000) * 50/90) || null;
+      }
+      g('f-amount').value = preAmt != null ? preAmt : '';
       g('f-consumed').value = rec.consumedAmount != null ? rec.consumedAmount : '';
       g('f-note').value = rec.note || '';
       updateFeedFields();
@@ -1144,8 +1156,8 @@ var firebaseConfig = {
     var ftype = g('f-type').value;
     var fsub  = ftype === 'breast' ? (g('f-subtype').value||'direct') : null;
     var isDirect = ftype === 'breast' && fsub === 'direct';
-    var prepAmt   = isDirect ? null : (parseInt(g('f-amount').value,10)||null);
-    var consumed  = isDirect ? null : (parseInt(g('f-consumed').value,10)||null);
+    var prepAmt   = (isDirect && !_editId) ? null : (parseInt(g('f-amount').value,10)||null);
+    var consumed  = (isDirect && !_editId) ? null : (parseInt(g('f-consumed').value,10)||null);
     var side  = isDirect ? (g('f-side').value||null) : null;
     var note  = g('f-note').value.trim()||null;
     if (_editId) {
