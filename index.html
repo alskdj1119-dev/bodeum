@@ -423,6 +423,7 @@ html,body{height:100%;overflow:hidden}
         <div class="clver-item"><span class="clver-tag tag-change">변경</span>모든 기록 목록 시간 표시 → 경과시간 대신 "YYYY년 MM월 DD일 HH:mm" 날짜로 변경</div>
         <div class="clver-item"><span class="clver-tag tag-change">변경</span>전체 시간 형식 24시간제 통일 (초 단위 제거)</div>
         <div class="clver-item"><span class="clver-tag tag-fix">수정</span>홈 직전 / 직전 24시간 카드 텍스트 줄바꿈 방지 (13px 통일)</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>수유·기저귀·수면·홈 타임라인 날짜 아래 경과시간 추가 ("X시간 X분 전" 형식)</div>
       </div>
       <div class="clver">
         <div class="clver-hdr"><span class="clver-badge">v1.2</span><span class="clver-date">2026년 8월</span></div>
@@ -767,6 +768,14 @@ var firebaseConfig = {
     var d = new Date(iso);
     return d.getFullYear() + '년 ' + p2(d.getMonth()+1) + '월 ' + p2(d.getDate()) + '일 ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
   }
+  function elapsedStr(iso) {
+    if (!iso) return '';
+    var min = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+    if (min < 1) return '방금 전';
+    var hh = Math.floor(min / 60), mm = min % 60;
+    if (hh === 0) return mm + '분 전';
+    return hh + '시간 ' + mm + '분 전';
+  }
   function agoStr(iso) {
     if (!iso) return '—';
     var min = (Date.now() - new Date(iso).getTime()) / 60000;
@@ -901,7 +910,7 @@ var firebaseConfig = {
     var el = g('recentList');
     if (!all.length) { el.innerHTML = '<div class="empty"><div class="empty-lbl" style="font-size:13px">아직 기록이 없어요 🌿</div></div>'; return; }
     el.innerHTML = all.slice(0,10).map(function(e) {
-      return '<div class="tlitem"><div class="tldot '+e.t+'"></div><div class="tlinf"><div class="tltype">'+e.label+'</div>'+(e.sub?'<div class="tldet">'+e.sub+'</div>':'')+'</div><div class="tltime">'+fmtFull(e.time)+'</div></div>';
+      return '<div class="tlitem"><div class="tldot '+e.t+'"></div><div class="tlinf"><div class="tltype">'+e.label+'</div>'+(e.sub?'<div class="tldet">'+e.sub+'</div>':'')+'</div><div class="tltime">'+fmtFull(e.time)+'<br><span class="eago">'+elapsedStr(e.time)+'</span></div></div>';
     }).join('');
   }
 
@@ -943,7 +952,7 @@ var firebaseConfig = {
         else if (dispAmt != null) amtStr = dispAmt+'ml';
         else if (f.consumedAmount != null) amtStr = '섭취 '+f.consumedAmount+'ml';
         var details = [amtStr, durTxt, f.side?(TS[f.side]||''):'', f.note||''].filter(Boolean).join(' · ');
-        return '<div class="ec" onclick="openEdit(\'feeds\',\''+f.id+'\')" style="cursor:pointer"><div class="edot f"></div><div class="emain"><div class="epri">'+typeLbl+'</div><div class="esec">'+(timeRange+(details?' · '+details:''))+'</div></div><div class="etime">'+fmtFull(t)+'</div><button class="edel" onclick="event.stopPropagation();delE(\'feeds\',\''+f.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+        return '<div class="ec" onclick="openEdit(\'feeds\',\''+f.id+'\')" style="cursor:pointer"><div class="edot f"></div><div class="emain"><div class="epri">'+typeLbl+'</div><div class="esec">'+(timeRange+(details?' · '+details:''))+'</div></div><div class="etime">'+fmtFull(t)+'<br><span class="eago">'+elapsedStr(t)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'feeds\',\''+f.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
   }
@@ -957,7 +966,7 @@ var firebaseConfig = {
     el.innerHTML = groupByDay(sorted, function(d){ return d.time; }).map(function(g2) {
       return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(d) {
         var sub = [d.color?TC[d.color]:'', d.note||''].filter(Boolean).join(' · ');
-        return '<div class="ec" onclick="openEdit(\'diapers\',\''+d.id+'\')" style="cursor:pointer"><div class="edot d"></div><div class="emain"><div class="epri">'+(TD[d.type]||'기저귀')+'</div><div class="esec">'+(sub||'&nbsp;')+'</div></div><div class="etime">'+fmtFull(d.time)+'</div><button class="edel" onclick="event.stopPropagation();delE(\'diapers\',\''+d.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+        return '<div class="ec" onclick="openEdit(\'diapers\',\''+d.id+'\')" style="cursor:pointer"><div class="edot d"></div><div class="emain"><div class="epri">'+(TD[d.type]||'기저귀')+'</div><div class="esec">'+(sub||'&nbsp;')+'</div></div><div class="etime">'+fmtFull(d.time)+'<br><span class="eago">'+elapsedStr(d.time)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'diapers\',\''+d.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
   }
@@ -980,7 +989,7 @@ var firebaseConfig = {
     var PL = { crib:'침대', arms:'품', cushion:'원형쿠션' };
     el.innerHTML = groupByDay(done, function(s){ return s.start; }).map(function(g2) {
       return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(s) {
-        return '<div class="ec" onclick="openEdit(\'sleeps\',\''+s.id+'\')" style="cursor:pointer"><div class="edot s"></div><div class="emain"><div class="epri">'+durStr(new Date(s.end)-new Date(s.start))+'</div><div class="esec">'+fmt(s.start)+' → '+fmt(s.end)+(s.place?' · '+(PL[s.place]||''):'')+'</div></div><div class="etime">'+fmtFull(s.start)+'</div><button class="edel" onclick="event.stopPropagation();delE(\'sleeps\',\''+s.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+        return '<div class="ec" onclick="openEdit(\'sleeps\',\''+s.id+'\')" style="cursor:pointer"><div class="edot s"></div><div class="emain"><div class="epri">'+durStr(new Date(s.end)-new Date(s.start))+'</div><div class="esec">'+fmt(s.start)+' → '+fmt(s.end)+(s.place?' · '+(PL[s.place]||''):'')+'</div></div><div class="etime">'+fmtFull(s.start)+'<br><span class="eago">'+elapsedStr(s.start)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'sleeps\',\''+s.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
   }
