@@ -55,11 +55,15 @@ body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--san
 .sync-dot.error{background:#E05A4E}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-.content{flex:1;overflow-y:auto;padding-bottom:84px}
+html,body{height:100%;overflow:hidden}
+#app{height:100vh;overflow:hidden}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:84px}
 .panel{display:none;padding:20px}
 .panel.active{display:block}
 
 .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surf);border-top:1px solid var(--bdr);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
+.backbtn{background:none;border:none;padding:4px 8px 4px 0;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:4px;font-family:var(--sans);font-size:14px;font-weight:500;-webkit-tap-highlight-color:transparent}
+.backbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:var(--sans);font-size:10px;font-weight:400;transition:color .15s;-webkit-tap-highlight-color:transparent}
 .nb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nb.active{color:var(--sage)}
@@ -149,6 +153,44 @@ body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--san
 .bpri:active{opacity:.8}
 .bcan{background:var(--surf2);color:var(--muted);border:none;border-radius:100px;padding:14px 20px;font-family:var(--sans);font-size:15px;cursor:pointer}
 ::-webkit-scrollbar{width:0}
+
+/* ── SETTINGS MENU ITEMS ─────────────────────────────────── */
+.settmenu{display:flex;align-items:center;gap:14px;padding:15px 18px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s;width:100%;text-align:left;font-family:var(--sans)}
+.settmenu:active{opacity:.7}
+.settmenu-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.settmenu-ico svg{width:18px;height:18px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.settmenu-inf{flex:1}
+.settmenu-title{font-size:14px;font-weight:600;color:var(--ink)}
+.settmenu-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.settmenu-arr{color:var(--muted);flex-shrink:0}
+.settmenu-arr svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── CHANGELOG ───────────────────────────────────────────── */
+.clver{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:12px}
+.clver-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.clver-badge{font-family:var(--serif);font-size:13px;font-weight:700;color:#fff;background:var(--sage);border-radius:100px;padding:3px 10px}
+.clver-date{font-size:11px;color:var(--muted)}
+.clver-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.clver-item{font-size:13px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--bdr);line-height:1.5}
+.clver-item:last-child{border-bottom:none;padding-bottom:0}
+.clver-tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-right:5px;vertical-align:middle}
+.tag-new{background:rgba(79,107,92,.15);color:var(--cf)}
+.tag-fix{background:rgba(61,90,120,.12);color:var(--cs)}
+.tag-change{background:rgba(125,91,56,.12);color:var(--cd)}
+
+/* ── REQUESTS BOARD ──────────────────────────────────────── */
+.reqcard{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);margin-bottom:10px}
+.reqcard-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.reqcard-txt{flex:1;font-size:13px;color:var(--ink);line-height:1.55}
+.reqcard-date{font-size:11px;color:var(--muted);white-space:nowrap;margin-top:1px}
+.reqcard-foot{display:flex;align-items:center;gap:6px}
+.status-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;border:none;cursor:pointer;font-family:var(--sans);transition:opacity .15s;-webkit-tap-highlight-color:transparent}
+.status-pill:active{opacity:.7}
+.sp-접수{background:rgba(125,91,56,.12);color:var(--cd)}
+.sp-처리중{background:rgba(61,90,120,.12);color:var(--cs)}
+.sp-완료{background:rgba(79,107,92,.15);color:var(--cf)}
+.req-textarea{width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:12px;padding:12px 14px;font-family:var(--sans);font-size:14px;color:var(--ink);outline:none;resize:none;line-height:1.5;transition:border-color .15s}
+.req-textarea:focus{border-color:var(--sage)}
 </style>
 
 <!-- ── SETUP OVERLAY ───────────────────────────────────────── -->
@@ -180,12 +222,15 @@ body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--san
 <!-- ── MAIN APP ────────────────────────────────────────────── -->
 <div id="app" style="display:none">
   <header class="hdr">
-    <svg class="logo" viewBox="0 0 100 100">
+    <button class="backbtn" id="backBtn" onclick="goTab('home');_prevTab='home'" style="display:none">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>뒤로
+    </button>
+    <svg class="logo" id="hdrLogo" viewBox="0 0 100 100">
       <rect width="100" height="100" rx="20" fill="var(--s-wash)"/>
       <circle cx="50" cy="28" r="11" fill="var(--sage)"/>
       <path d="M22 52 Q22 80 50 80 Q78 80 78 52" fill="none" stroke="var(--sage)" stroke-width="11" stroke-linecap="round"/>
     </svg>
-    <span class="appname">보듬</span>
+    <span class="appname" id="hdrAppname">보듬</span>
     <div class="hdr-right">
       <div class="sync-dot local" id="syncDot" title="연결 중…"></div>
       <span class="hdrdate" id="hdrDate"></span>
@@ -260,25 +305,90 @@ body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--san
     <!-- 수면 -->
     <div class="panel" id="panel-sleep">
       <div class="loghdr"><span class="logtitle">수면</span><span class="badge" id="sbadge">0</span><button class="addbtn" onclick="openM('sleep')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>추가</button></div>
+      <div class="slive" id="sleepLiveBanner" style="display:none;background:var(--sw);border-color:rgba(61,90,120,.18)">
+        <div class="spulse" style="background:var(--cs)"></div>
+        <div class="sliveinf"><div class="slivelbl" id="sleepLiveLbl">수면 중</div><div class="slivetimer" id="sleepLiveTimer">00:00</div></div>
+        <button class="sstop" style="background:var(--cs)" onclick="stopSleep()">종료</button>
+      </div>
       <div id="sleepList"><div class="empty"><div class="empty-ico">🌙</div><div class="empty-lbl">수면 기록이 없어요</div></div></div>
     </div>
 
     <!-- 설정 -->
     <div class="panel" id="panel-settings">
       <p class="eyebrow">설정</p>
-      <h1 class="daytitle" style="font-size:20px;margin-bottom:24px">가족 코드</h1>
-      <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:12px">
-        <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">현재 가족 코드</div>
-        <div id="settingsCode" style="font-family:var(--serif);font-size:28px;font-weight:700;color:var(--sage);letter-spacing:.1em;margin-bottom:14px">—</div>
-        <button onclick="copyFamilyCode()" style="width:100%;background:var(--s-wash);color:var(--sage);border:none;border-radius:12px;padding:12px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <h1 class="daytitle" style="font-size:20px;margin-bottom:20px">설정</h1>
+
+      <!-- 가족 코드 -->
+      <p class="seclbl" style="margin-bottom:8px">가족 코드</p>
+      <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:20px">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">현재 가족 코드</div>
+        <div id="settingsCode" style="font-family:var(--serif);font-size:26px;font-weight:700;color:var(--sage);letter-spacing:.1em;margin-bottom:12px">—</div>
+        <button onclick="copyFamilyCode()" style="width:100%;background:var(--s-wash);color:var(--sage);border:none;border-radius:12px;padding:11px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           코드 복사
         </button>
       </div>
-      <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 20px;box-shadow:var(--sh);margin-bottom:24px">
-        <div style="font-size:13px;color:var(--muted);line-height:1.6">다른 기기에서 접속할 때 위 코드를 입력하면<br>같은 기록을 공유할 수 있어요.</div>
-      </div>
+
+      <!-- 메뉴 -->
+      <p class="seclbl" style="margin-bottom:8px">앱 정보</p>
+      <button class="settmenu" onclick="goSubTab('changelog')">
+        <div class="settmenu-ico" style="background:var(--s-wash)"><svg viewBox="0 0 24 24" stroke="var(--sage)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+        <div class="settmenu-inf"><div class="settmenu-title">수정기록</div><div class="settmenu-sub">기능 추가 · 변경 이력 보기</div></div>
+        <div class="settmenu-arr"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </button>
+      <button class="settmenu" onclick="goSubTab('requests')">
+        <div class="settmenu-ico" style="background:rgba(61,90,120,.1)"><svg viewBox="0 0 24 24" stroke="var(--cs)"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="settmenu-inf"><div class="settmenu-title">개선요청 게시판</div><div class="settmenu-sub">불편한 점 · 원하는 기능 제안</div></div>
+        <div class="settmenu-arr"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </button>
+
+      <p class="seclbl" style="margin-bottom:8px;margin-top:16px">계정</p>
       <button onclick="changeFamily()" style="width:100%;background:var(--surf2);color:var(--muted);border:1px solid var(--bdr);border-radius:100px;padding:14px;font-family:var(--sans);font-size:14px;cursor:pointer">다른 가족 코드로 변경</button>
+    </div>
+
+    <!-- 수정기록 -->
+    <div class="panel" id="panel-changelog">
+      <div class="clver">
+        <div class="clver-hdr"><span class="clver-badge">v1.2</span><span class="clver-date">2026년 8월</span></div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>수면 장소에 원형쿠션 추가 (침대 / 품 / 원형쿠션)</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>수정기록 메뉴 추가 (현재 화면)</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>개선요청 게시판 추가 — 접수 · 처리중 · 완료 상태 관리</div>
+        <div class="clver-item"><span class="clver-tag tag-change">변경</span>설정 화면 메뉴 구조 정리</div>
+      </div>
+      <div class="clver">
+        <div class="clver-hdr"><span class="clver-badge">v1.1</span><span class="clver-date">2026년 8월</span></div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>직수 수유 시작 시 수면 타이머 자동 연동 (종료 시 둘 다 저장)</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>직수 자동 수유량 — 15분 기준 50ml, 10초 단위 계산</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>준비한 수유량 / 실제 섭취량 분리 기록</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>수유 종료 후 "얼마나 먹었나요?" 섭취량 입력 팝업</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>세부 탭 진입 시 좌측 상단 뒤로가기(←) 버튼</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>수면 패널에 현재 수면 진행 배너 추가</div>
+        <div class="clver-item"><span class="clver-tag tag-change">변경</span>하단 메뉴바 스크롤 시에도 고정 유지</div>
+        <div class="clver-item"><span class="clver-tag tag-fix">삭제</span>수유 방법에서 "혼합" 항목 제거</div>
+      </div>
+      <div class="clver">
+        <div class="clver-hdr"><span class="clver-badge">v1.0</span><span class="clver-date">2026년 초</span></div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>수유 · 기저귀 · 수면 기록 (타이머 / 직접 입력)</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>가족코드로 파트너와 실시간 기록 공유</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>홈 화면 — 직전 기록 / 직전 24시간 요약</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>기록 수정 · 삭제 / 시간 편집 기능</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>오프라인 지원 (로컬 캐시 + 재연결 동기화)</div>
+      </div>
+    </div>
+
+    <!-- 개선요청 게시판 -->
+    <div class="panel" id="panel-requests">
+      <div class="loghdr" style="margin-bottom:14px">
+        <span class="logtitle">개선 요청</span>
+        <span class="badge" id="reqBadge">0</span>
+      </div>
+      <!-- 작성 폼 -->
+      <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:18px">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">새 요청 작성</div>
+        <textarea class="req-textarea" id="req-text" rows="3" placeholder="불편한 점이나 원하는 기능을 적어주세요 😊"></textarea>
+        <button onclick="submitRequest()" style="width:100%;margin-top:10px;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:12px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer">접수하기</button>
+      </div>
+      <div id="reqList"><div class="empty"><div class="empty-ico">💬</div><div class="empty-lbl">아직 요청이 없어요</div></div></div>
     </div>
   </main>
 
@@ -300,9 +410,10 @@ body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--san
     <div class="mbody">
       <div class="fld" id="row-ftime" style="display:none"><div class="flbl">시작 시간</div><input type="datetime-local" class="finp" id="f-start-edit"></div>
       <div class="fld" id="row-ftimeend" style="display:none"><div class="flbl">종료 시간</div><input type="datetime-local" class="finp" id="f-end-edit"></div>
-      <div class="fld"><div class="flbl">방법</div><div class="seg" id="seg-ft"><button class="sbtn on" data-v="breast" onclick="pickFeedType(this,'breast')">모유</button><button class="sbtn" data-v="bottle" onclick="pickFeedType(this,'bottle')">분유</button><button class="sbtn" data-v="mixed" onclick="pickFeedType(this,'mixed')">혼합</button></div><input type="hidden" id="f-type" value="breast"></div>
+      <div class="fld"><div class="flbl">방법</div><div class="seg" id="seg-ft"><button class="sbtn on" data-v="breast" onclick="pickFeedType(this,'breast')">모유</button><button class="sbtn" data-v="bottle" onclick="pickFeedType(this,'bottle')">분유</button></div><input type="hidden" id="f-type" value="breast"></div>
       <div class="fld" id="row-subtype"><div class="flbl">수유 방식</div><div class="seg" id="seg-fsub"><button class="sbtn on" data-v="direct" onclick="pickFeedSub(this,'direct')">직수</button><button class="sbtn" data-v="pumped" onclick="pickFeedSub(this,'pumped')">유축</button></div><input type="hidden" id="f-subtype" value="direct"></div>
-      <div class="fld" id="row-amount"><div class="flbl">수유량 (ml)</div><input type="number" class="finp" id="f-amount" placeholder="예: 120" min="0" max="600" step="5"></div>
+      <div class="fld" id="row-amount"><div class="flbl">준비한 수유량 (ml)</div><input type="number" class="finp" id="f-amount" placeholder="예: 120" min="0" max="600" step="5"></div>
+      <div class="fld" id="row-consumed"><div class="flbl">실제 섭취량 (ml) <span>— 선택</span></div><input type="number" class="finp" id="f-consumed" placeholder="실제로 먹은 양 (ml)" min="0" max="600" step="5"></div>
       <div class="fld" id="row-side"><div class="flbl">방향</div><div class="seg" id="seg-fs"><button class="sbtn on" data-v="left" onclick="pick(this,'seg-fs','f-side')">왼쪽</button><button class="sbtn" data-v="right" onclick="pick(this,'seg-fs','f-side')">오른쪽</button></div><input type="hidden" id="f-side" value="left"></div>
       <div class="fld"><div class="flbl">메모 <span>— 선택</span></div><input type="text" class="finp" id="f-note" placeholder="특이사항 등"></div>
     </div>
@@ -330,10 +441,28 @@ body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--san
     <div class="mhandle"></div><div class="mtitle">수면 기록</div>
     <div class="mbody">
       <div class="fld"><div class="flbl">수면 시작</div><input type="datetime-local" class="finp" id="s-start"></div>
-      <div class="fld"><div class="flbl">수면 종료</div><input type="datetime-local" class="finp" id="s-end"></div>
-      <div class="fld"><div class="flbl">장소 <span>— 선택</span></div><div class="seg" id="seg-sp"><button class="sbtn on" data-v="" onclick="pick(this,'seg-sp','s-place')">—</button><button class="sbtn" data-v="crib" onclick="pick(this,'seg-sp','s-place')">침대</button><button class="sbtn" data-v="carrier" onclick="pick(this,'seg-sp','s-place')">캐리어</button><button class="sbtn" data-v="arms" onclick="pick(this,'seg-sp','s-place')">품</button></div><input type="hidden" id="s-place" value=""></div>
+      <div class="fld" id="row-send"><div class="flbl">수면 종료 <span id="s-end-hint">— 비워두면 타이머 시작</span></div><input type="datetime-local" class="finp" id="s-end"></div>
+      <div class="fld"><div class="flbl">장소 <span>— 선택</span></div><div class="seg" id="seg-sp"><button class="sbtn on" data-v="" onclick="pick(this,'seg-sp','s-place')">—</button><button class="sbtn" data-v="crib" onclick="pick(this,'seg-sp','s-place')">침대</button><button class="sbtn" data-v="arms" onclick="pick(this,'seg-sp','s-place')">품</button><button class="sbtn" data-v="cushion" onclick="pick(this,'seg-sp','s-place')">원형쿠션</button></div><input type="hidden" id="s-place" value=""></div>
     </div>
     <div class="mfoot"><button class="bcan" onclick="closeM('sleep')">취소</button><button class="bpri" onclick="saveSleep()">저장</button></div>
+  </div>
+</div>
+
+<!-- 실제 섭취량 모달 -->
+<div class="mbg" id="modal-consumed">
+  <div class="msheet">
+    <div class="mhandle"></div><div class="mtitle">수유 완료 🍼</div>
+    <div class="mbody">
+      <div style="text-align:center;padding:8px 0 18px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">준비한 수유량 (자동 계산)</div>
+        <div id="consumed-auto-amt" style="font-size:30px;font-weight:700;color:var(--sage);font-family:var(--serif)">—</div>
+      </div>
+      <div class="fld">
+        <div class="flbl">실제 섭취량 (ml) <span>— 선택</span></div>
+        <input type="number" class="finp" id="consumed-input" placeholder="실제로 먹은 양 (ml)" min="0" max="600" step="5">
+      </div>
+    </div>
+    <div class="mfoot"><button class="bcan" onclick="saveConsumed(null)">건너뛰기</button><button class="bpri" onclick="saveConsumedConfirm()">저장</button></div>
   </div>
 </div>
 
@@ -365,10 +494,16 @@ var firebaseConfig = {
   var isOnline = false;
   var _feedTimer = null;
   var _feedTimerId = null;
+  var _sleepTimer = null;
   var _toastTO = null;
   var _skipNextSnapshot = false; // suppress echo after our own save
   var _editId = null;   // id of record being edited (null = new)
   var _editType = null; // 'feeds' | 'diapers' | 'sleeps'
+  var _linkedSleepId = null;         // sleep id linked to current feed timer
+  var _pendingConsumedFeedId = null; // feed id awaiting consumed amount
+  var _prevTab = 'home';             // for back-button sub-navigation
+  var REQUESTS = [];                 // global request list (from Firestore)
+  var unsubRequests = null;
 
   function ensure() {
     if (!Array.isArray(DB.feeds))   DB.feeds   = [];
@@ -416,6 +551,7 @@ var firebaseConfig = {
     docRef = db.collection(COLLECTION).doc(code);
     setDate();
     subscribeToData();
+    subscribeRequests();
     setInterval(renderHome, 60000);
   }
 
@@ -436,11 +572,18 @@ var firebaseConfig = {
       }
       isOnline = !snapshot.metadata.fromCache;
       updateSyncDot(isOnline ? 'online' : 'cache');
+      // restore linked sleep id from localStorage
+      try {
+        var lsid = localStorage.getItem('bodeum_linked_sleep');
+        if (lsid) _linkedSleepId = lsid;
+      } catch(_) {}
       renderAll();
-      if (!findActiveFeed()) restartFeedTimer(); else {
-        var af = findActiveFeed();
-        if (_feedTimerId !== af.id) startFeedTimer(af);
-      }
+      var af = findActiveFeed();
+      if (af) { if (_feedTimerId !== af.id) startFeedTimer(af); }
+      else { stopFeedTimer(); }
+      var as = findActiveSleep();
+      if (as) { if (!_sleepTimer) startSleepTimer(as); }
+      else { stopSleepTimer(); }
     }, function(err) {
       updateSyncDot('error');
       toast('연결 오류: ' + err.message);
@@ -549,7 +692,7 @@ var firebaseConfig = {
   function renderHome() {
     var now = Date.now();
     var h24 = 24 * 60 * 60 * 1000;
-    var TF = { breast:'모유', bottle:'분유', mixed:'혼합' };
+    var TF = { breast:'모유', bottle:'분유' };
     var TD = { wet:'소변', soiled:'대변', both:'소변+대변' };
 
     var lf = DB.feeds.slice().sort(function(a,b){ return new Date(b.start||b.time)-new Date(a.start||a.time); })[0];
@@ -571,8 +714,8 @@ var firebaseConfig = {
 
     var tf = DB.feeds.filter(function(f){ return (now - new Date(f.start||f.time).getTime()) <= h24; });
     g('h-fcnt').textContent = tf.length;
-    var tml = tf.reduce(function(s,f){ return s+(f.amount||0); }, 0);
-    g('h-fcntsub').textContent = tml > 0 ? '총 ' + tml + 'ml' : '회';
+    var tml = tf.reduce(function(s,f){ return s+(f.consumedAmount!=null?f.consumedAmount:(f.amount||0)); }, 0);
+    g('h-fcntsub').textContent = tml > 0 ? '섭취 ' + tml + 'ml' : '회';
 
     var td24 = DB.diapers.filter(function(d){ return (now - new Date(d.time).getTime()) <= h24; });
     g('h-dcnt').textContent = td24.length;
@@ -582,7 +725,8 @@ var firebaseConfig = {
     DB.feeds.forEach(function(f) {
       var t = f.start||f.time;
       var dur = (f.start && f.end) ? ' · ' + durStr(new Date(f.end)-new Date(f.start)) : '';
-      all.push({ t:'f', time:t, label:'수유 — '+(TF[f.type]||''), sub:(f.amount?f.amount+'ml':'')+dur });
+      var famtStr = f.consumedAmount!=null ? '섭취 '+f.consumedAmount+'ml' : (f.amount?f.amount+'ml':'');
+      all.push({ t:'f', time:t, label:'수유 — '+(TF[f.type]||''), sub:famtStr+dur });
     });
     DB.diapers.forEach(function(d){ all.push({ t:'d', time:d.time, label:'기저귀 — '+(TD[d.type]||''), sub:d.note||'' }); });
     DB.sleeps.filter(function(s){ return s.end; }).forEach(function(s){ all.push({ t:'s', time:s.start, label:'수면', sub:durStr(new Date(s.end)-new Date(s.start)) }); });
@@ -603,12 +747,17 @@ var firebaseConfig = {
     var af = findActiveFeed();
     var fb = g('feedLiveBanner');
     fb.style.display = af ? 'flex' : 'none';
-    if (af && _feedTimerId !== af.id) startFeedTimer(af);
-    if (!af && _feedTimer) stopFeedTimer();
+    if (af) {
+      var flbl = fb.querySelector('.slivelbl');
+      if (flbl) flbl.textContent = _linkedSleepId ? '수유+수면 중' : '수유 중';
+      if (_feedTimerId !== af.id) startFeedTimer(af);
+    } else {
+      stopFeedTimer();
+    }
 
     var el = g('feedList');
     if (!done.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">🍼</div><div class="empty-lbl">수유 기록이 없어요</div></div>'; return; }
-    var TF = { breast:'모유', bottle:'분유', mixed:'혼합' };
+    var TF = { breast:'모유', bottle:'분유' };
     var TSU = { direct:'직수', pumped:'유축' };
     var TS = { left:'왼쪽', right:'오른쪽' };
     el.innerHTML = groupByDay(done, function(f){ return f.start||f.time; }).map(function(g2) {
@@ -617,7 +766,11 @@ var firebaseConfig = {
         var durTxt = (f.start&&f.end) ? durStr(new Date(f.end)-new Date(f.start)) : '';
         var timeRange = (f.start&&f.end) ? fmt(f.start)+' → '+fmt(f.end) : fmt(t);
         var typeLbl = (TF[f.type]||'수유')+(f.subtype?' · '+(TSU[f.subtype]||''):'');
-        var details = [f.amount?f.amount+'ml':'', durTxt, f.side?(TS[f.side]||''):'', f.note||''].filter(Boolean).join(' · ');
+        var amtStr = '';
+        if (f.amount != null && f.consumedAmount != null) amtStr = '준비 '+f.amount+'ml / 섭취 '+f.consumedAmount+'ml';
+        else if (f.amount != null) amtStr = f.amount+'ml';
+        else if (f.consumedAmount != null) amtStr = '섭취 '+f.consumedAmount+'ml';
+        var details = [amtStr, durTxt, f.side?(TS[f.side]||''):'', f.note||''].filter(Boolean).join(' · ');
         return '<div class="ec" onclick="openEdit(\'feeds\',\''+f.id+'\')" style="cursor:pointer"><div class="edot f"></div><div class="emain"><div class="epri">'+typeLbl+'</div><div class="esec">'+(timeRange+(details?' · '+details:''))+'</div></div><div class="etime">'+fmt(t)+'<br><span class="eago">'+agoStr(t)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'feeds\',\''+f.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
@@ -638,11 +791,21 @@ var firebaseConfig = {
   }
 
   function renderSleeps() {
+    var as = findActiveSleep();
+    var slb = g('sleepLiveBanner');
+    slb.style.display = as ? 'flex' : 'none';
+    if (as) {
+      var lbl = g('sleepLiveLbl');
+      if (lbl) lbl.textContent = (_linkedSleepId === as.id) ? '수면+수유 중' : '수면 중';
+      if (!_sleepTimer) startSleepTimer(as);
+    } else {
+      stopSleepTimer();
+    }
     var done = DB.sleeps.filter(function(s){ return s.end; }).sort(function(a,b){ return new Date(b.start)-new Date(a.start); });
     g('sbadge').textContent = done.length;
     var el = g('sleepList');
     if (!done.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">🌙</div><div class="empty-lbl">수면 기록이 없어요</div></div>'; return; }
-    var PL = { crib:'침대', carrier:'캐리어', arms:'품' };
+    var PL = { crib:'침대', arms:'품', cushion:'원형쿠션' };
     el.innerHTML = groupByDay(done, function(s){ return s.start; }).map(function(g2) {
       return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(s) {
         return '<div class="ec" onclick="openEdit(\'sleeps\',\''+s.id+'\')" style="cursor:pointer"><div class="edot s"></div><div class="emain"><div class="epri">'+durStr(new Date(s.end)-new Date(s.start))+'</div><div class="esec">'+fmt(s.start)+' → '+fmt(s.end)+(s.place?' · '+(PL[s.place]||''):'')+'</div></div><div class="etime">'+fmt(s.start)+'<br><span class="eago">'+agoStr(s.start)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'sleeps\',\''+s.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
@@ -657,18 +820,47 @@ var firebaseConfig = {
     for (var i = 0; i < DB.feeds.length; i++) if (DB.feeds[i].start && !DB.feeds[i].end) return DB.feeds[i];
     return null;
   }
+  function findActiveSleep() {
+    for (var i = 0; i < DB.sleeps.length; i++) if (DB.sleeps[i].start && !DB.sleeps[i].end) return DB.sleeps[i];
+    return null;
+  }
+  function timerText(ms) {
+    var h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000);
+    return h > 0 ? h+':'+p2(m)+':'+p2(s) : p2(m)+':'+p2(s);
+  }
   function startFeedTimer(entry) {
     stopFeedTimer(); _feedTimerId = entry.id;
+    var hasLinkedSleep = _linkedSleepId != null;
+    var lbl = g('feedLiveBanner').querySelector('.slivelbl');
+    if (lbl) lbl.textContent = hasLinkedSleep ? '수유+수면 중' : '수유 중';
     function tick() {
       var el = g('feedLiveTimer'); if (!el) return;
-      var e = Date.now() - new Date(entry.start).getTime();
-      var h = Math.floor(e/3600000), m = Math.floor((e%3600000)/60000), s = Math.floor((e%60000)/1000);
-      el.textContent = h > 0 ? h+':'+p2(m)+':'+p2(s) : p2(m)+':'+p2(s);
+      el.textContent = timerText(Date.now() - new Date(entry.start).getTime());
+      // also update sleep live banner if linked
+      if (_linkedSleepId) {
+        var sl = findActiveSleep();
+        if (sl) {
+          var se = g('sleepLiveTimer'); if (se) se.textContent = timerText(Date.now() - new Date(sl.start).getTime());
+        }
+      }
     }
     tick(); _feedTimer = setInterval(tick, 1000);
   }
   function stopFeedTimer() { if (_feedTimer) { clearInterval(_feedTimer); _feedTimer = null; _feedTimerId = null; } }
   function restartFeedTimer() { var a = findActiveFeed(); if (a && _feedTimerId !== a.id) startFeedTimer(a); }
+
+  // ── SLEEP TIMER ───────────────────────────────────────────
+  function startSleepTimer(entry) {
+    stopSleepTimer();
+    var lbl = g('sleepLiveLbl');
+    if (lbl) lbl.textContent = _linkedSleepId === entry.id ? '수면+수유 중' : '수면 중';
+    function tick() {
+      var el = g('sleepLiveTimer'); if (!el) return;
+      el.textContent = timerText(Date.now() - new Date(entry.start).getTime());
+    }
+    tick(); _sleepTimer = setInterval(tick, 1000);
+  }
+  function stopSleepTimer() { if (_sleepTimer) { clearInterval(_sleepTimer); _sleepTimer = null; } }
 
   // ── ACTIONS ───────────────────────────────────────────────
   window.delE = function(col, id) {
@@ -678,20 +870,118 @@ var firebaseConfig = {
 
   window.stopFeed = function() {
     var a = findActiveFeed();
-    if (a) { a.end = new Date().toISOString(); stopFeedTimer(); saveDB().then(renderAll); }
+    if (!a) return;
+    var endTime = new Date().toISOString();
+    var elapsed = Date.now() - new Date(a.start).getTime();
+    var isDirect = a.type === 'breast' && a.subtype === 'direct';
+    if (isDirect) {
+      // 15분=50ml, 10초 단위
+      a.amount = Math.round(Math.round(elapsed/10000) * 50/90);
+    }
+    a.end = endTime;
+    stopFeedTimer();
+    // end linked sleep if any
+    if (_linkedSleepId) {
+      var sl = findActiveSleep();
+      if (sl && sl.id === _linkedSleepId) { sl.end = endTime; }
+      _linkedSleepId = null;
+      stopSleepTimer();
+      try { localStorage.removeItem('bodeum_linked_sleep'); } catch(_) {}
+    }
+    if (isDirect) {
+      _pendingConsumedFeedId = a.id;
+      saveDB().then(function(){
+        renderAll();
+        g('consumed-auto-amt').textContent = a.amount + 'ml';
+        g('consumed-input').value = '';
+        g('modal-consumed').classList.add('open');
+      });
+    } else {
+      saveDB().then(renderAll);
+    }
   };
+
+  window.stopSleep = function() {
+    var a = findActiveSleep();
+    if (!a) return;
+    var endTime = new Date().toISOString();
+    a.end = endTime;
+    stopSleepTimer();
+    // if linked feed is active, stop that too
+    if (_linkedSleepId === a.id) {
+      var af = findActiveFeed();
+      if (af) {
+        var elapsed = Date.now() - new Date(af.start).getTime();
+        var isDirect = af.type === 'breast' && af.subtype === 'direct';
+        if (isDirect) af.amount = Math.round(Math.round(elapsed/10000) * 50/90);
+        af.end = endTime;
+        stopFeedTimer();
+        _linkedSleepId = null;
+        try { localStorage.removeItem('bodeum_linked_sleep'); } catch(_) {}
+        if (isDirect) {
+          _pendingConsumedFeedId = af.id;
+          saveDB().then(function(){
+            renderAll();
+            g('consumed-auto-amt').textContent = af.amount + 'ml';
+            g('consumed-input').value = '';
+            g('modal-consumed').classList.add('open');
+          });
+          return;
+        }
+      }
+      _linkedSleepId = null;
+      try { localStorage.removeItem('bodeum_linked_sleep'); } catch(_) {}
+    }
+    saveDB().then(renderAll);
+  };
+
+  window.saveConsumed = function(amt) {
+    g('modal-consumed').classList.remove('open');
+    if (_pendingConsumedFeedId && amt != null && !isNaN(amt) && amt >= 0) {
+      DB.feeds.forEach(function(f){ if (f.id === _pendingConsumedFeedId) f.consumedAmount = amt; });
+      saveDB().then(renderAll);
+    } else {
+      renderAll();
+    }
+    _pendingConsumedFeedId = null;
+  };
+  window.saveConsumedConfirm = function() {
+    var v = parseInt(g('consumed-input').value, 10);
+    saveConsumed(!isNaN(v) && v >= 0 ? v : null);
+  };
+
+  var SUB_PANELS = ['changelog','requests']; // panels without nav tabs
 
   window.goTab = function(tab) {
     document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
     document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('active'); });
-    g('panel-'+tab).classList.add('active');
-    g('nav-'+tab).classList.add('active');
+    var panel = g('panel-'+tab);
+    if (!panel) return;
+    panel.classList.add('active');
+    // only activate nav button for main tabs
+    var navBtn = g('nav-'+tab);
+    if (navBtn) navBtn.classList.add('active');
+    // show/hide back button and logo
+    var isHome = (tab === 'home');
+    g('backBtn').style.display = isHome ? 'none' : '';
+    g('hdrLogo').style.display = isHome ? '' : 'none';
+    g('hdrAppname').style.display = isHome ? '' : 'none';
     if (tab === 'settings') {
       var code = '';
       try { code = localStorage.getItem('bodeum_family_code') || ''; } catch(_) {}
-      g('settingsCode').textContent = code || '—';
+      if (g('settingsCode')) g('settingsCode').textContent = code || '—';
     }
-    renderAll();
+    if (tab === 'requests') renderRequests();
+    if (!isHome) renderAll();
+  };
+
+  window.goSubTab = function(sub) {
+    // remember where we came from for back button
+    var cur = document.querySelector('.panel.active');
+    _prevTab = cur ? cur.id.replace('panel-','') : 'settings';
+    // update back button to return to _prevTab
+    g('backBtn').onclick = function(){ goTab(_prevTab); _prevTab = 'home'; };
+    goTab(sub);
   };
 
   window.copyFamilyCode = function() {
@@ -725,7 +1015,7 @@ var firebaseConfig = {
     _editId = null; _editType = null;
     var n = nowISO();
     if (type === 'feed') {
-      g('f-amount').value = ''; g('f-note').value = '';
+      g('f-amount').value = ''; g('f-consumed').value = ''; g('f-note').value = '';
       rSeg('seg-ft','f-type','breast');
       rSeg('seg-fsub','f-subtype','direct');
       rSeg('seg-fs','f-side','left');
@@ -758,9 +1048,13 @@ var firebaseConfig = {
       rSeg('seg-ft','f-type', rec.type||'breast');
       rSeg('seg-fsub','f-subtype', rec.subtype||'direct');
       rSeg('seg-fs','f-side', rec.side||'left');
-      g('f-amount').value = rec.amount || '';
+      g('f-amount').value = rec.amount != null ? rec.amount : '';
+      g('f-consumed').value = rec.consumedAmount != null ? rec.consumedAmount : '';
       g('f-note').value = rec.note || '';
       updateFeedFields();
+      // in edit mode, always show amount/consumed fields
+      g('row-amount').style.display = '';
+      g('row-consumed').style.display = '';
       g('f-start-edit').value = toLocalISO(rec.start || rec.time);
       g('f-end-edit').value = toLocalISO(rec.end);
       g('row-ftime').style.display = '';
@@ -796,7 +1090,11 @@ var firebaseConfig = {
   }
 
   document.querySelectorAll('.mbg').forEach(function(bg) {
-    bg.addEventListener('click', function(e){ if (e.target===bg) closeM(bg.id.replace('modal-','')); });
+    bg.addEventListener('click', function(e){
+      if (e.target !== bg) return;
+      var type = bg.id.replace('modal-','');
+      if (type === 'consumed') { saveConsumed(null); } else { closeM(type); }
+    });
   });
 
   // ── FEED FIELD LOGIC ──────────────────────────────────────
@@ -805,9 +1103,15 @@ var firebaseConfig = {
     var fsub  = g('f-subtype').value;
     var isBreast  = ftype === 'breast';
     var isDirect  = isBreast && fsub === 'direct';
-    g('row-subtype').style.display = isBreast ? '' : 'none';
-    g('row-amount').style.display  = isDirect  ? 'none' : '';
-    g('row-side').style.display    = isDirect  ? '' : 'none';
+    var isEdit = !!_editId;
+    g('row-subtype').style.display  = isBreast ? '' : 'none';
+    // for direct breast: hide amount/consumed when in timer mode (new), show in edit mode
+    g('row-amount').style.display   = isDirect && !isEdit ? 'none' : (isDirect ? '' : '');
+    g('row-consumed').style.display = isDirect && !isEdit ? 'none' : (isDirect ? '' : '');
+    g('row-side').style.display     = isDirect ? '' : 'none';
+    // update amount label
+    var amtLbl = g('row-amount').querySelector('.flbl');
+    if (amtLbl) amtLbl.textContent = isDirect ? '준비한 수유량 (ml)' : '준비한 수유량 (ml)';
   }
   window.pickFeedType = function(btn, val) { pick(btn,'seg-ft','f-type'); updateFeedFields(); };
   window.pickFeedSub  = function(btn, val) { pick(btn,'seg-fsub','f-subtype'); updateFeedFields(); };
@@ -816,8 +1120,9 @@ var firebaseConfig = {
   window.saveFeed = function() {
     var ftype = g('f-type').value;
     var fsub  = ftype === 'breast' ? (g('f-subtype').value||'direct') : null;
-    var isDirect = ftype==='breast' && fsub==='direct';
-    var amt   = isDirect ? null : (parseInt(g('f-amount').value,10)||null);
+    var isDirect = ftype === 'breast' && fsub === 'direct';
+    var prepAmt   = isDirect ? null : (parseInt(g('f-amount').value,10)||null);
+    var consumed  = isDirect ? null : (parseInt(g('f-consumed').value,10)||null);
     var side  = isDirect ? (g('f-side').value||null) : null;
     var note  = g('f-note').value.trim()||null;
     if (_editId) {
@@ -826,17 +1131,26 @@ var firebaseConfig = {
       if (sv && ev && new Date(ev) <= new Date(sv)) { toast('종료 시간이 시작보다 늦어야 해요'); return; }
       DB.feeds = DB.feeds.map(function(f){
         if (f.id !== _editId) return f;
-        var upd = { type:ftype, subtype:fsub, amount:amt, side:side, note:note };
+        var upd = { type:ftype, subtype:fsub, amount:prepAmt, consumedAmount:consumed, side:side, note:note };
         if (sv) upd.start = new Date(sv).toISOString();
         if (ev) upd.end   = new Date(ev).toISOString();
         return Object.assign({}, f, upd);
       });
       closeM('feed'); saveDB().then(renderAll); return;
     }
+    // new record — end any existing active feeds
     var now = new Date().toISOString();
-    DB.feeds.forEach(function(f){ if (f.start && !f.end) f.end = new Date().toISOString(); });
+    DB.feeds.forEach(function(f){ if (f.start && !f.end) f.end = now; });
     stopFeedTimer();
-    DB.feeds.push({ id:uid(), start:now, end:null, type:ftype, subtype:fsub, amount:amt, side:side, note:note });
+    var newFeed = { id:uid(), start:now, end:null, type:ftype, subtype:fsub, amount:prepAmt, consumedAmount:consumed, side:side, note:note };
+    DB.feeds.push(newFeed);
+    // if direct breast → also start linked sleep
+    if (isDirect) {
+      var sleepId = uid();
+      _linkedSleepId = sleepId;
+      DB.sleeps.push({ id:sleepId, start:now, end:null, place:null });
+      try { localStorage.setItem('bodeum_linked_sleep', sleepId); } catch(_) {}
+    }
     closeM('feed');
     saveDB().then(function(){ goTab('feed'); });
   };
@@ -854,16 +1168,99 @@ var firebaseConfig = {
 
   window.saveSleep = function() {
     var sv = g('s-start').value; if (!sv) { toast('시작 시간을 입력해주세요'); return; }
-    var ev = g('s-end').value;   if (!ev) { toast('종료 시간을 입력해주세요'); return; }
-    if (new Date(ev) <= new Date(sv)) { toast('종료 시간이 시작보다 늦어야 해요'); return; }
-    var rec = { start:new Date(sv).toISOString(), end:new Date(ev).toISOString(), place:g('s-place').value||null };
+    var ev = g('s-end').value;
+    if (ev && new Date(ev) <= new Date(sv)) { toast('종료 시간이 시작보다 늦어야 해요'); return; }
+    var rec = { start:new Date(sv).toISOString(), end:ev ? new Date(ev).toISOString() : null, place:g('s-place').value||null };
     if (_editId) {
       DB.sleeps = DB.sleeps.map(function(s){ return s.id === _editId ? Object.assign({}, s, rec) : s; });
       closeM('sleep'); saveDB().then(renderAll); return;
     }
-    DB.sleeps.push(Object.assign({ id:uid() }, rec));
-    closeM('sleep'); saveDB().then(renderAll);
+    if (!ev) {
+      // timer mode — close any existing active sleep first
+      DB.sleeps.forEach(function(s){ if (s.start && !s.end) s.end = new Date().toISOString(); });
+      stopSleepTimer();
+    }
+    var newSleep = Object.assign({ id:uid() }, rec);
+    DB.sleeps.push(newSleep);
+    closeM('sleep');
+    saveDB().then(function(){
+      if (!ev) startSleepTimer(newSleep);
+      renderAll();
+    });
   };
+
+  // ── REQUESTS ──────────────────────────────────────────────
+  var STATUS_CYCLE = { '접수':'처리중', '처리중':'완료', '완료':'접수' };
+  var STATUS_NEXT_LABEL = { '접수':'→ 처리중', '처리중':'→ 완료', '완료':'→ 접수' };
+
+  function subscribeRequests() {
+    if (!db) return;
+    if (unsubRequests) unsubRequests();
+    unsubRequests = db.collection('bodeum_requests').orderBy('createdAt','desc').onSnapshot(function(snap) {
+      REQUESTS = [];
+      snap.forEach(function(doc){ REQUESTS.push(Object.assign({ id: doc.id }, doc.data())); });
+      renderRequests();
+    }, function(err) {
+      // if index not ready, fallback to simple query
+      db.collection('bodeum_requests').get().then(function(snap) {
+        REQUESTS = [];
+        snap.forEach(function(doc){ REQUESTS.push(Object.assign({ id: doc.id }, doc.data())); });
+        REQUESTS.sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); });
+        renderRequests();
+      }).catch(function(){});
+    });
+  }
+
+  function renderRequests() {
+    var el = g('reqList'); if (!el) return;
+    var badge = g('reqBadge'); if (badge) badge.textContent = REQUESTS.length;
+    if (!REQUESTS.length) {
+      el.innerHTML = '<div class="empty"><div class="empty-ico">💬</div><div class="empty-lbl">아직 요청이 없어요</div></div>';
+      return;
+    }
+    el.innerHTML = REQUESTS.map(function(r) {
+      var st = r.status || '접수';
+      var d = r.createdAt ? new Date(r.createdAt) : null;
+      var dateStr = d ? (d.getMonth()+1)+'/'+(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes()) : '';
+      var fc = r.familyCode ? '<span style="font-size:10px;color:var(--muted);margin-left:auto">'+r.familyCode+'</span>' : '';
+      return '<div class="reqcard">'
+        +'<div class="reqcard-top"><div class="reqcard-txt">'+escHtml(r.text||'')+'</div><div class="reqcard-date">'+dateStr+'</div></div>'
+        +'<div class="reqcard-foot">'
+        +'<button class="status-pill sp-'+st+'" onclick="cycleStatus(\''+r.id+'\',\''+st+'\')">'+st+'</button>'
+        +'<span style="font-size:11px;color:var(--muted)">'+STATUS_NEXT_LABEL[st]+'</span>'
+        +fc
+        +'</div></div>';
+    }).join('');
+  }
+
+  window.submitRequest = function() {
+    var txt = (g('req-text').value || '').trim();
+    if (!txt) { toast('내용을 입력해주세요'); return; }
+    if (!db) { toast('연결 중이에요. 잠시 후 다시 시도해주세요'); return; }
+    var code = '';
+    try { code = localStorage.getItem(LOCAL_CODE_KEY) || ''; } catch(_) {}
+    db.collection('bodeum_requests').add({
+      text: txt,
+      status: '접수',
+      createdAt: new Date().toISOString(),
+      familyCode: code
+    }).then(function() {
+      g('req-text').value = '';
+      toast('요청이 접수됐어요 ✓');
+    }).catch(function(e) { toast('접수 실패 — ' + e.message); });
+  };
+
+  window.cycleStatus = function(id, curStatus) {
+    if (!db) return;
+    var nextStatus = STATUS_CYCLE[curStatus] || '접수';
+    db.collection('bodeum_requests').doc(id).update({ status: nextStatus })
+      .then(function(){ toast(nextStatus + '으로 변경됐어요'); })
+      .catch(function(e){ toast('변경 실패 — ' + e.message); });
+  };
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
   // ── BOOT ──────────────────────────────────────────────────
   // Check for saved family code → skip setup screen
