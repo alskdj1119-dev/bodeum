@@ -419,7 +419,7 @@ html,body{height:100%;overflow:hidden}
         <div class="clver-item"><span class="clver-tag tag-change">변경</span>홈 체중 라벨 "방금 전" → "직전 체중" 으로 수정</div>
         <div class="clver-item"><span class="clver-tag tag-fix">수정</span>체중 다이얼 마우스 스크롤 시 2칸씩 이동되던 문제 수정</div>
         <div class="clver-item"><span class="clver-tag tag-change">변경</span>홈 N일차 표시 두 줄 → 한 줄로 변경</div>
-        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>체중 탭 일별 증가량 SVG 바 차트 추가 (최근 14일 / 7일 일평균)</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>체중 탭 일별 체중 추이 + 전일 대비 증가량 차트 (최근 14일 / 7일 일평균)</div>
         <div class="clver-item"><span class="clver-tag tag-fix">수정</span>홈 직전 / 직전 24시간 카드 텍스트 줄바꿈 방지 (13px 통일)</div>
       </div>
       <div class="clver">
@@ -1011,48 +1011,65 @@ var firebaseConfig = {
     });
     return (digits[0] * 10 + digits[1]) + (digits[2] * 0.1 + digits[3] * 0.01);
   }
-  function buildWeightChart(chartData, avg7) {
-    var W = 360, H = 148;
-    var ml = 6, mr = 6, mt = 16, mb = 28;
+  function buildWeightChart(allDays, gains, avg7) {
+    var W = 360, H = 172;
+    var ml = 10, mr = 10, mt = 32, mb = 44;
     var cW = W - ml - mr;
     var cH = H - mt - mb;
-    var zeroY = mt + cH / 2;
-    var n = chartData.length;
+    var n = allDays.length;
     if (!n) return '';
-    var gap = 4;
-    var barW = Math.min(24, Math.floor((cW - gap * (n - 1)) / n));
-    var totalW = n * barW + (n - 1) * gap;
-    var startX = ml + (cW - totalW) / 2;
-    var maxAbs = Math.max.apply(null, chartData.map(function(d){ return Math.abs(d.gainG); }));
-    if (maxAbs < 5) maxAbs = 5;
-    var half = cH / 2 - 8;
-    var bars = '', labels = '', vals = '';
-    chartData.forEach(function(d, i) {
-      var x = startX + i * (barW + gap);
-      var cx = x + barW / 2;
-      var h = Math.max(3, Math.abs(d.gainG) / maxAbs * half);
-      var isPos = d.gainG >= 0;
-      var col = isPos ? 'var(--cw)' : 'var(--cd)';
-      var rx = Math.min(4, barW / 2);
-      bars += '<rect x="' + x + '" y="' + (isPos ? zeroY - h : zeroY) + '" width="' + barW + '" height="' + h + '" rx="' + rx + '" fill="' + col + '" opacity="0.82"/>';
-      if (n <= 10 || i % Math.ceil(n / 10) === 0 || i === n - 1) {
-        labels += '<text x="' + cx + '" y="' + (H - mb + 14) + '" text-anchor="middle" font-size="9" fill="var(--muted)">' + d.label + '</text>';
-      }
-      if (n <= 10 || barW >= 18) {
-        var valY = isPos ? zeroY - h - 4 : zeroY + h + 11;
-        vals += '<text x="' + cx + '" y="' + valY + '" text-anchor="middle" font-size="9" font-weight="700" fill="' + col + '">' + (isPos ? '+' : '') + d.gainG + '</text>';
+
+    var kgs = allDays.map(function(d){ return d.kg; });
+    var minKg = Math.min.apply(null, kgs);
+    var maxKg = Math.max.apply(null, kgs);
+    var range = maxKg - minKg;
+    var pad = range < 0.05 ? 0.15 : range * 0.3;
+    var yMin = minKg - pad, yMax = maxKg + pad;
+
+    function xp(i){ return n === 1 ? ml + cW / 2 : ml + i * (cW / (n - 1)); }
+    function yp(kg){ return mt + (yMax - kg) / (yMax - yMin) * cH; }
+
+    // 가이드 라인 (최소/중간/최대 kg)
+    var grid = '';
+    [minKg, (minKg + maxKg) / 2, maxKg].forEach(function(kg) {
+      var y = yp(kg);
+      grid += '<line x1="'+ml+'" y1="'+y+'" x2="'+(W-mr)+'" y2="'+y+'" stroke="var(--bdr)" stroke-width="0.8" stroke-dasharray="4,3"/>';
+    });
+
+    // 면적 채우기
+    var ptStr = allDays.map(function(d,i){ return xp(i)+','+yp(d.kg); }).join(' ');
+    var area = '<path d="M'+xp(0)+','+(mt+cH)+' L'+ptStr.split(' ').join(' L')+' L'+xp(n-1)+','+(mt+cH)+' Z" fill="var(--cf)" opacity="0.09"/>';
+    var line = '<polyline points="'+ptStr+'" fill="none" stroke="var(--cf)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+
+    // 점 + 체중 라벨 + 날짜 + 증가량
+    var dots = '', wlbls = '', dlbls = '', glbls = '';
+    allDays.forEach(function(d, i) {
+      var x = xp(i), y = yp(d.kg);
+      dots += '<circle cx="'+x+'" cy="'+y+'" r="3.5" fill="var(--cf)" stroke="var(--surf)" stroke-width="2"/>';
+      // 체중 라벨 (점 위)
+      wlbls += '<text x="'+x+'" y="'+(y-10)+'" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink)">'+d.kg.toFixed(2)+'</text>';
+      // 날짜 라벨
+      var showDate = n <= 7 || i % Math.ceil(n / 7) === 0 || i === n - 1;
+      if (showDate) dlbls += '<text x="'+x+'" y="'+(H-mb+13)+'" text-anchor="middle" font-size="9" fill="var(--muted)">'+d.label+'</text>';
+      // 전일 대비 증가량 (첫날 제외)
+      if (i > 0) {
+        var gv = gains[i-1].gainG;
+        var gs = (gv >= 0 ? '+' : '') + gv + 'g';
+        var gc = gv >= 0 ? 'var(--cw)' : 'var(--cd)';
+        glbls += '<text x="'+x+'" y="'+(H-mb+27)+'" text-anchor="middle" font-size="9" font-weight="600" fill="'+gc+'">'+gs+'</text>';
       }
     });
+
     var avgHtml = '';
     if (avg7 !== null) {
       var s = avg7 >= 0 ? '+' : '';
       var ac = avg7 >= 0 ? 'var(--cw)' : 'var(--cd)';
-      avgHtml = '<div style="text-align:center;font-size:12px;color:var(--muted);padding:2px 0 6px">최근 7일 일평균 <strong style="color:' + ac + '">' + s + avg7 + 'g</strong></div>';
+      avgHtml = '<div style="text-align:center;font-size:12px;color:var(--muted);padding:4px 0 4px">최근 7일 일평균 <strong style="color:'+ac+'">'+s+avg7+'g</strong></div>';
     }
-    return '<div style="font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--muted);margin-bottom:6px">일별 체중 증가량 (g)</div>'
-      + '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" xmlns="http://www.w3.org/2000/svg">'
-      + '<line x1="' + ml + '" y1="' + zeroY + '" x2="' + (W - mr) + '" y2="' + zeroY + '" stroke="var(--bdr)" stroke-width="1.5"/>'
-      + bars + labels + vals + '</svg>' + avgHtml;
+
+    return '<div style="font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--muted);margin-bottom:2px">일별 체중 추이</div>'
+      + '<svg viewBox="0 0 '+W+' '+H+'" width="100%" xmlns="http://www.w3.org/2000/svg">'
+      + grid + area + line + dots + wlbls + dlbls + glbls + '</svg>' + avgHtml;
   }
 
   function renderWeights() {
@@ -1068,19 +1085,19 @@ var firebaseConfig = {
     // 일별 마지막 체중
     var byDay = {};
     asc.forEach(function(w){ byDay[w.time.slice(0,10)] = w.kg; });
-    var days = Object.keys(byDay).sort();
-    // 일별 증가량 계산
+    var days = Object.keys(byDay).sort().slice(-14);
+    var allDays = days.map(function(d){ return { label: d.slice(5,7)+'/'+d.slice(8,10), kg: byDay[d] }; });
+    // 전일 대비 증가량
     var gains = [];
-    for (var i = 1; i < days.length; i++) {
-      gains.push({ label: days[i].slice(5,7) + '/' + days[i].slice(8,10), gainG: Math.round((byDay[days[i]] - byDay[days[i-1]]) * 1000) });
+    for (var i = 1; i < allDays.length; i++) {
+      gains.push({ gainG: Math.round((allDays[i].kg - allDays[i-1].kg) * 1000) });
     }
-    var chartData = gains.slice(-14);
     var last7 = gains.slice(-7);
-    var avg7 = last7.length ? Math.round(last7.reduce(function(s,d){ return s + d.gainG; }, 0) / last7.length) : null;
+    var avg7 = last7.length ? Math.round(last7.reduce(function(s,d){ return s+d.gainG; },0)/last7.length) : null;
     if (chartWrap) {
-      if (chartData.length >= 1) {
+      if (allDays.length >= 2) {
         chartWrap.style.display = 'block';
-        chartWrap.innerHTML = buildWeightChart(chartData, avg7);
+        chartWrap.innerHTML = buildWeightChart(allDays, gains, avg7);
       } else {
         chartWrap.style.display = 'none';
         chartWrap.innerHTML = '';
