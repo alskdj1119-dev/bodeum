@@ -924,6 +924,16 @@ var firebaseConfig = {
       var html = '';
       for (var n = 0; n <= 9; n++) html += '<div class="wdial-item">' + n + '</div>';
       col.innerHTML = html;
+      // 마우스 휠: 정확히 44px씩 이동
+      col.removeEventListener('wheel', col._wheelHandler || function(){});
+      col._wheelHandler = function(e) {
+        e.preventDefault();
+        var dir = e.deltaY > 0 ? 1 : -1;
+        var cur = Math.round(col.scrollTop / 44);
+        var next = Math.max(0, Math.min(9, cur + dir));
+        col.scrollTo({ top: next * 44, behavior: 'smooth' });
+      };
+      col.addEventListener('wheel', col._wheelHandler, { passive: false });
     });
     var vals = [d0||0, d1||3, d2||5, d3||0];
     requestAnimationFrame(function() {
