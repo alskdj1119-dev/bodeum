@@ -419,6 +419,7 @@ html,body{height:100%;overflow:hidden}
         <div class="clver-item"><span class="clver-tag tag-change">변경</span>홈 체중 라벨 "방금 전" → "직전 체중" 으로 수정</div>
         <div class="clver-item"><span class="clver-tag tag-fix">수정</span>체중 다이얼 마우스 스크롤 시 2칸씩 이동되던 문제 수정</div>
         <div class="clver-item"><span class="clver-tag tag-change">변경</span>홈 N일차 표시 두 줄 → 한 줄로 변경</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>체중 탭 일별 증가량 SVG 바 차트 추가 (최근 14일 / 7일 일평균)</div>
         <div class="clver-item"><span class="clver-tag tag-fix">수정</span>홈 직전 / 직전 24시간 카드 텍스트 줄바꿈 방지 (13px 통일)</div>
       </div>
       <div class="clver">
@@ -452,6 +453,7 @@ html,body{height:100%;overflow:hidden}
     <!-- 체중 -->
     <div class="panel" id="panel-weight">
       <div class="loghdr"><span class="logtitle">체중</span><span class="badge" id="wbadge">0</span><button class="addbtn" onclick="openM('weight')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>추가</button></div>
+      <div id="weight-chart-wrap" style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 14px 6px;margin-bottom:16px;box-shadow:var(--sh);display:none"></div>
       <div id="weightList"><div class="empty"><div class="empty-ico">⚖️</div><div class="empty-lbl">체중 기록이 없어요</div></div></div>
     </div>
 
@@ -1009,12 +1011,83 @@ var firebaseConfig = {
     });
     return (digits[0] * 10 + digits[1]) + (digits[2] * 0.1 + digits[3] * 0.01);
   }
+  function buildWeightChart(chartData, avg7) {
+    var W = 360, H = 148;
+    var ml = 6, mr = 6, mt = 16, mb = 28;
+    var cW = W - ml - mr;
+    var cH = H - mt - mb;
+    var zeroY = mt + cH / 2;
+    var n = chartData.length;
+    if (!n) return '';
+    var gap = 4;
+    var barW = Math.min(24, Math.floor((cW - gap * (n - 1)) / n));
+    var totalW = n * barW + (n - 1) * gap;
+    var startX = ml + (cW - totalW) / 2;
+    var maxAbs = Math.max.apply(null, chartData.map(function(d){ return Math.abs(d.gainG); }));
+    if (maxAbs < 5) maxAbs = 5;
+    var half = cH / 2 - 8;
+    var bars = '', labels = '', vals = '';
+    chartData.forEach(function(d, i) {
+      var x = startX + i * (barW + gap);
+      var cx = x + barW / 2;
+      var h = Math.max(3, Math.abs(d.gainG) / maxAbs * half);
+      var isPos = d.gainG >= 0;
+      var col = isPos ? 'var(--cw)' : 'var(--cd)';
+      var rx = Math.min(4, barW / 2);
+      bars += '<rect x="' + x + '" y="' + (isPos ? zeroY - h : zeroY) + '" width="' + barW + '" height="' + h + '" rx="' + rx + '" fill="' + col + '" opacity="0.82"/>';
+      if (n <= 10 || i % Math.ceil(n / 10) === 0 || i === n - 1) {
+        labels += '<text x="' + cx + '" y="' + (H - mb + 14) + '" text-anchor="middle" font-size="9" fill="var(--muted)">' + d.label + '</text>';
+      }
+      if (n <= 10 || barW >= 18) {
+        var valY = isPos ? zeroY - h - 4 : zeroY + h + 11;
+        vals += '<text x="' + cx + '" y="' + valY + '" text-anchor="middle" font-size="9" font-weight="700" fill="' + col + '">' + (isPos ? '+' : '') + d.gainG + '</text>';
+      }
+    });
+    var avgHtml = '';
+    if (avg7 !== null) {
+      var s = avg7 >= 0 ? '+' : '';
+      var ac = avg7 >= 0 ? 'var(--cw)' : 'var(--cd)';
+      avgHtml = '<div style="text-align:center;font-size:12px;color:var(--muted);padding:2px 0 6px">최근 7일 일평균 <strong style="color:' + ac + '">' + s + avg7 + 'g</strong></div>';
+    }
+    return '<div style="font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--muted);margin-bottom:6px">일별 체중 증가량 (g)</div>'
+      + '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" xmlns="http://www.w3.org/2000/svg">'
+      + '<line x1="' + ml + '" y1="' + zeroY + '" x2="' + (W - mr) + '" y2="' + zeroY + '" stroke="var(--bdr)" stroke-width="1.5"/>'
+      + bars + labels + vals + '</svg>' + avgHtml;
+  }
+
   function renderWeights() {
-    var sorted = (DB.weights || []).slice().sort(function(a,b){ return new Date(b.time)-new Date(a.time); });
+    var asc = (DB.weights || []).slice().sort(function(a,b){ return new Date(a.time)-new Date(b.time); });
     var el = g('weightList'); if (!el) return;
-    var badge = g('wbadge'); if (badge) badge.textContent = sorted.length;
-    if (!sorted.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">⚖️</div><div class="empty-lbl">체중 기록이 없어요</div></div>'; return; }
-    el.innerHTML = groupByDay(sorted, function(w){ return w.time; }).map(function(g2) {
+    var chartWrap = g('weight-chart-wrap');
+    var badge = g('wbadge'); if (badge) badge.textContent = asc.length;
+    if (!asc.length) {
+      if (chartWrap) { chartWrap.innerHTML = ''; chartWrap.style.display = 'none'; }
+      el.innerHTML = '<div class="empty"><div class="empty-ico">⚖️</div><div class="empty-lbl">체중 기록이 없어요</div></div>';
+      return;
+    }
+    // 일별 마지막 체중
+    var byDay = {};
+    asc.forEach(function(w){ byDay[w.time.slice(0,10)] = w.kg; });
+    var days = Object.keys(byDay).sort();
+    // 일별 증가량 계산
+    var gains = [];
+    for (var i = 1; i < days.length; i++) {
+      gains.push({ label: days[i].slice(5,7) + '/' + days[i].slice(8,10), gainG: Math.round((byDay[days[i]] - byDay[days[i-1]]) * 1000) });
+    }
+    var chartData = gains.slice(-14);
+    var last7 = gains.slice(-7);
+    var avg7 = last7.length ? Math.round(last7.reduce(function(s,d){ return s + d.gainG; }, 0) / last7.length) : null;
+    if (chartWrap) {
+      if (chartData.length >= 1) {
+        chartWrap.style.display = 'block';
+        chartWrap.innerHTML = buildWeightChart(chartData, avg7);
+      } else {
+        chartWrap.style.display = 'none';
+        chartWrap.innerHTML = '';
+      }
+    }
+    var desc = asc.slice().reverse();
+    el.innerHTML = groupByDay(desc, function(w){ return w.time; }).map(function(g2) {
       return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(w) {
         return '<div class="ec" onclick="openEditWeight(\''+w.id+'\')" style="cursor:pointer"><div class="edot w"></div><div class="emain"><div class="epri">'+w.kg.toFixed(2)+' kg</div><div class="esec">'+fmt(w.time)+'</div></div><div class="etime">'+fmt(w.time)+'<br><span class="eago">'+agoStr(w.time)+'</span></div><button class="edel" onclick="event.stopPropagation();delWeight(\''+w.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
