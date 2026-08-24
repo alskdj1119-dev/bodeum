@@ -276,15 +276,15 @@ html,body{height:100%;overflow:hidden}
       <div class="sgrid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:20px">
         <div class="sc" onclick="goTab('feed')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
           <div class="sr"><div class="slbl">수유</div><div class="sico f"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div></div>
-          <div class="sval" id="h-fago" style="font-size:16px">—</div><div class="ssub" id="h-fsub">기록 없음</div>
+          <div class="sval" id="h-fago" style="font-size:13px;white-space:nowrap">—</div><div class="ssub" id="h-fsub">기록 없음</div>
         </div>
         <div class="sc" onclick="goTab('diaper')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
           <div class="sr"><div class="slbl">기저귀</div><div class="sico d"><svg viewBox="0 0 24 24"><path d="M2 9.5L5 6h14l3 3.5v5L19 18H5l-3-3.5V9.5z"/><path d="M2 9.5h5l3 3 3-3h5"/></svg></div></div>
-          <div class="sval" id="h-dago" style="font-size:16px">—</div><div class="ssub" id="h-dsub">기록 없음</div>
+          <div class="sval" id="h-dago" style="font-size:13px;white-space:nowrap">—</div><div class="ssub" id="h-dsub">기록 없음</div>
         </div>
         <div class="sc" onclick="goTab('sleep')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
           <div class="sr"><div class="slbl">수면</div><div class="sico s"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div>
-          <div class="sval" id="h-sago" style="font-size:16px">—</div><div class="ssub" id="h-ssub2">기록 없음</div>
+          <div class="sval" id="h-sago" style="font-size:13px;white-space:nowrap">—</div><div class="ssub" id="h-ssub2">기록 없음</div>
         </div>
       </div>
 
@@ -418,6 +418,8 @@ html,body{height:100%;overflow:hidden}
         <div class="clver-item"><span class="clver-tag tag-change">변경</span>다크모드 추가 지원 (시스템 설정 / 수동 전환)</div>
         <div class="clver-item"><span class="clver-tag tag-change">변경</span>홈 체중 라벨 "방금 전" → "직전 체중" 으로 수정</div>
         <div class="clver-item"><span class="clver-tag tag-fix">수정</span>체중 다이얼 마우스 스크롤 시 2칸씩 이동되던 문제 수정</div>
+        <div class="clver-item"><span class="clver-tag tag-change">변경</span>홈 N일차 표시 두 줄 → 한 줄로 변경</div>
+        <div class="clver-item"><span class="clver-tag tag-fix">수정</span>홈 직전 카드 시간 텍스트 줄바꿈 방지 (최대폭 계산 → 13px 고정)</div>
       </div>
       <div class="clver">
         <div class="clver-hdr"><span class="clver-badge">v1.2</span><span class="clver-date">2026년 8월</span></div>
@@ -811,7 +813,7 @@ var firebaseConfig = {
         var tod = new Date(); tod.setHours(0,0,0,0);
         var days = Math.floor((tod - birth) / 86400000) + 1;
         if (days >= 1) {
-          dayEl.innerHTML = babyName + '와<br>만난지 <strong style="font-size:15px;color:var(--sage)">' + days + '일차</strong>';
+          dayEl.innerHTML = babyName + '와 만난지 <strong style="font-size:13px;color:var(--sage)">' + days + '일차</strong>';
         } else { dayEl.textContent = ''; }
       } else { dayEl.textContent = ''; }
     }
