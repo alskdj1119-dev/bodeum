@@ -293,15 +293,15 @@ html,body{height:100%;overflow:hidden}
       <div class="sgrid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:20px">
         <div class="sc" onclick="goTab('sleep')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
           <div class="sr"><div class="slbl">수면</div><div class="sico s"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div>
-          <div class="sval" id="h-stot">0분</div><div class="ssub" id="h-ssub">0회</div>
+          <div class="sval" id="h-stot" style="font-size:13px;white-space:nowrap">0분</div><div class="ssub" id="h-ssub">0회</div>
         </div>
         <div class="sc" onclick="goTab('feed')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
           <div class="sr"><div class="slbl">수유</div><div class="sico f"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
-          <div class="sval" id="h-fcnt">0</div><div class="ssub" id="h-fcntsub">회</div>
+          <div class="sval" id="h-fcnt" style="font-size:13px;white-space:nowrap">0</div><div class="ssub" id="h-fcntsub">회</div>
         </div>
         <div class="sc" onclick="goTab('diaper')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
           <div class="sr"><div class="slbl">기저귀</div><div class="sico d"><svg viewBox="0 0 24 24"><path d="M2 9.5L5 6h14l3 3.5v5L19 18H5l-3-3.5V9.5z"/><path d="M2 9.5h5l3 3 3-3h5"/></svg></div></div>
-          <div class="sval" id="h-dcnt">0</div><div class="ssub" id="h-dcntsub">회</div>
+          <div class="sval" id="h-dcnt" style="font-size:13px;white-space:nowrap">0</div><div class="ssub" id="h-dcntsub">회</div>
         </div>
       </div>
       <!-- 체중 섹션 -->
@@ -419,7 +419,7 @@ html,body{height:100%;overflow:hidden}
         <div class="clver-item"><span class="clver-tag tag-change">변경</span>홈 체중 라벨 "방금 전" → "직전 체중" 으로 수정</div>
         <div class="clver-item"><span class="clver-tag tag-fix">수정</span>체중 다이얼 마우스 스크롤 시 2칸씩 이동되던 문제 수정</div>
         <div class="clver-item"><span class="clver-tag tag-change">변경</span>홈 N일차 표시 두 줄 → 한 줄로 변경</div>
-        <div class="clver-item"><span class="clver-tag tag-fix">수정</span>홈 직전 카드 시간 텍스트 줄바꿈 방지 (최대폭 계산 → 13px 고정)</div>
+        <div class="clver-item"><span class="clver-tag tag-fix">수정</span>홈 직전 / 직전 24시간 카드 텍스트 줄바꿈 방지 (13px 통일)</div>
       </div>
       <div class="clver">
         <div class="clver-hdr"><span class="clver-badge">v1.2</span><span class="clver-date">2026년 8월</span></div>
