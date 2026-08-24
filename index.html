@@ -12,20 +12,21 @@
 <style>
 /* ── THEME ───────────────────────────────────────────────── */
 :root {
-  --bg:#F4EFE8;--surf:#FBF8F4;--surf2:#EDE9E1;--ink:#2A2622;--muted:#7A7268;
-  --sage:#4F6B5C;--s-wash:#E4EBE6;
+  --bg:#FDFAF6;--surf:#FFFFFF;--surf2:#F3EDE4;--ink:#2A2622;--muted:#8A7E74;
+  --sage:#4F6B5C;--s-wash:#E6EEE9;
   --cf:#4F6B5C;--cd:#7D5B38;--cs:#3D5A78;
-  --fw:rgba(79,107,92,.14);--dw:rgba(125,91,56,.14);--sw:rgba(61,90,120,.14);
-  --bdr:rgba(42,38,34,.09);--sh:0 1px 3px rgba(42,38,34,.07);--r:18px;
+  --fw:rgba(79,107,92,.13);--dw:rgba(125,91,56,.12);--sw:rgba(61,90,120,.12);
+  --bdr:rgba(42,38,34,.08);--sh:0 1px 4px rgba(42,38,34,.06);--r:18px;
   --serif:'Pretendard',system-ui,sans-serif;--sans:'Pretendard',system-ui,sans-serif;
 }
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#181614;--surf:#231F1B;--surf2:#2D2823;--ink:#EDE8E1;--muted:#8A8278;
-  --sage:#7FAF91;--s-wash:rgba(127,175,145,.15);--cf:#7FAF91;--cd:#C49A6B;--cs:#7899B8;
-  --fw:rgba(127,175,145,.15);--dw:rgba(196,154,107,.13);--sw:rgba(120,153,184,.13);
-  --bdr:rgba(237,232,225,.09);--sh:0 1px 4px rgba(0,0,0,.25);
+  --bg:#18150F;--surf:#221E17;--surf2:#2C271F;--ink:#EDE8E1;--muted:#8A8278;
+  --sage:#7FAF91;--s-wash:rgba(127,175,145,.13);--cf:#7FAF91;--cd:#C49A6B;--cs:#7899B8;
+  --fw:rgba(127,175,145,.13);--dw:rgba(196,154,107,.12);--sw:rgba(120,153,184,.12);
+  --bdr:rgba(237,232,225,.08);--sh:0 2px 6px rgba(0,0,0,.3);
 }}
-:root[data-theme="dark"]{--bg:#181614;--surf:#231F1B;--surf2:#2D2823;--ink:#EDE8E1;--muted:#8A8278;--sage:#7FAF91;--s-wash:rgba(127,175,145,.15);--cf:#7FAF91;--cd:#C49A6B;--cs:#7899B8;--fw:rgba(127,175,145,.15);--dw:rgba(196,154,107,.13);--sw:rgba(120,153,184,.13);--bdr:rgba(237,232,225,.09);--sh:0 1px 4px rgba(0,0,0,.25);}
+:root[data-theme="light"]{--bg:#FDFAF6;--surf:#FFFFFF;--surf2:#F3EDE4;--ink:#2A2622;--muted:#8A7E74;--sage:#4F6B5C;--s-wash:#E6EEE9;--cf:#4F6B5C;--cd:#7D5B38;--cs:#3D5A78;--fw:rgba(79,107,92,.13);--dw:rgba(125,91,56,.12);--sw:rgba(61,90,120,.12);--bdr:rgba(42,38,34,.08);--sh:0 1px 4px rgba(42,38,34,.06);}
+:root[data-theme="dark"]{--bg:#18150F;--surf:#221E17;--surf2:#2C271F;--ink:#EDE8E1;--muted:#8A8278;--sage:#7FAF91;--s-wash:rgba(127,175,145,.13);--cf:#7FAF91;--cd:#C49A6B;--cs:#7899B8;--fw:rgba(127,175,145,.13);--dw:rgba(196,154,107,.12);--sw:rgba(120,153,184,.12);--bdr:rgba(237,232,225,.08);--sh:0 2px 6px rgba(0,0,0,.3);}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -49,6 +50,9 @@ body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--san
 .appname{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--ink);letter-spacing:-.02em}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
 .hdrdate{font-size:12px;font-weight:300;color:var(--muted)}
+.theme-btn{background:none;border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.theme-btn:active{background:var(--surf2)}
+.theme-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;transition:background .3s,opacity .3s}
 .sync-dot.local{background:var(--muted);opacity:.4}
 .sync-dot.saving{animation:blink .7s infinite}
@@ -237,6 +241,10 @@ html,body{height:100%;overflow:hidden}
     </svg>
     <span class="appname" id="hdrAppname">보듬</span>
     <div class="hdr-right">
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="다크모드 전환">
+        <svg id="themeIcoMoon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="themeIcoSun" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
       <div class="sync-dot local" id="syncDot" title="연결 중…"></div>
       <span class="hdrdate" id="hdrDate"></span>
     </div>
@@ -1282,6 +1290,26 @@ var firebaseConfig = {
   function escHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+
+  // ── THEME ─────────────────────────────────────────────────
+  function applyTheme(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    var moon = g('themeIcoMoon'), sun = g('themeIcoSun');
+    if (moon) moon.style.display = dark ? 'none' : '';
+    if (sun)  sun.style.display  = dark ? '' : 'none';
+    try { localStorage.setItem('bodeum_theme', dark ? 'dark' : 'light'); } catch(_) {}
+  }
+  window.toggleTheme = function() {
+    var cur = document.documentElement.getAttribute('data-theme');
+    applyTheme(cur !== 'dark');
+  };
+  // boot: restore saved theme or detect system
+  (function(){
+    var saved = '';
+    try { saved = localStorage.getItem('bodeum_theme') || ''; } catch(_) {}
+    if (saved) { applyTheme(saved === 'dark'); }
+    else { applyTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches); }
+  })();
 
   // ── BOOT ──────────────────────────────────────────────────
   // Check for saved family code → skip setup screen
