@@ -179,16 +179,21 @@ html,body{height:100%;overflow:hidden}
 .tag-change{background:rgba(125,91,56,.12);color:var(--cd)}
 
 /* ── REQUESTS BOARD ──────────────────────────────────────── */
-.reqcard{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);margin-bottom:10px}
+.reqcard{background:var(--surf);border:1.5px solid var(--bdr);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);margin-bottom:10px;transition:background .2s,border-color .2s,opacity .2s}
+.reqcard.st-접수{border-color:rgba(125,91,56,.3);background:rgba(125,91,56,.04)}
+.reqcard.st-처리중{border-color:rgba(61,90,120,.3);background:rgba(61,90,120,.04)}
+.reqcard.st-완료{border-color:rgba(120,120,120,.15);background:var(--surf2);opacity:.65}
 .reqcard-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
 .reqcard-txt{flex:1;font-size:13px;color:var(--ink);line-height:1.55}
-.reqcard-date{font-size:11px;color:var(--muted);white-space:nowrap;margin-top:1px}
-.reqcard-foot{display:flex;align-items:center;gap:6px}
-.status-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;border:none;cursor:pointer;font-family:var(--sans);transition:opacity .15s;-webkit-tap-highlight-color:transparent}
-.status-pill:active{opacity:.7}
-.sp-접수{background:rgba(125,91,56,.12);color:var(--cd)}
-.sp-처리중{background:rgba(61,90,120,.12);color:var(--cs)}
-.sp-완료{background:rgba(79,107,92,.15);color:var(--cf)}
+.reqcard.st-완료 .reqcard-txt{color:var(--muted);text-decoration:line-through}
+.reqcard-date{font-size:11px;color:var(--muted);white-space:nowrap;margin-top:1px;text-align:right}
+.reqcard-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.req-status-select{font-size:11px;font-weight:700;padding:3px 8px 3px 10px;border-radius:100px;border:1.5px solid transparent;cursor:pointer;font-family:var(--sans);outline:none;-webkit-appearance:none;appearance:none}
+.req-status-select.sp-접수{background:rgba(125,91,56,.12);color:var(--cd);border-color:rgba(125,91,56,.25)}
+.req-status-select.sp-처리중{background:rgba(61,90,120,.12);color:var(--cs);border-color:rgba(61,90,120,.25)}
+.req-status-select.sp-완료{background:rgba(120,120,120,.1);color:var(--muted);border-color:rgba(120,120,120,.2)}
+.req-del-btn{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;padding:2px 4px;line-height:1;opacity:.5;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+.req-del-btn:active{opacity:1}
 .req-textarea{width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:12px;padding:12px 14px;font-family:var(--sans);font-size:14px;color:var(--ink);outline:none;resize:none;line-height:1.5;transition:border-color .15s}
 .req-textarea:focus{border-color:var(--sage)}
 </style>
@@ -1170,7 +1175,9 @@ var firebaseConfig = {
     var sv = g('s-start').value; if (!sv) { toast('시작 시간을 입력해주세요'); return; }
     var ev = g('s-end').value;
     if (ev && new Date(ev) <= new Date(sv)) { toast('종료 시간이 시작보다 늦어야 해요'); return; }
-    var rec = { start:new Date(sv).toISOString(), end:ev ? new Date(ev).toISOString() : null, place:g('s-place').value||null };
+    // 타이머 모드(종료 없음)이고 신규 기록이면 저장 시점을 정확한 시작으로 사용
+    var startISO = (!ev && !_editId) ? new Date().toISOString() : new Date(sv).toISOString();
+    var rec = { start:startISO, end:ev ? new Date(ev).toISOString() : null, place:g('s-place').value||null };
     if (_editId) {
       DB.sleeps = DB.sleeps.map(function(s){ return s.id === _editId ? Object.assign({}, s, rec) : s; });
       closeM('sleep'); saveDB().then(renderAll); return;
@@ -1190,8 +1197,7 @@ var firebaseConfig = {
   };
 
   // ── REQUESTS ──────────────────────────────────────────────
-  var STATUS_CYCLE = { '접수':'처리중', '처리중':'완료', '완료':'접수' };
-  var STATUS_NEXT_LABEL = { '접수':'→ 처리중', '처리중':'→ 완료', '완료':'→ 접수' };
+  var STATUS_LABELS = ['접수','처리중','완료'];
 
   function subscribeRequests() {
     if (!db) return;
@@ -1221,14 +1227,20 @@ var firebaseConfig = {
     el.innerHTML = REQUESTS.map(function(r) {
       var st = r.status || '접수';
       var d = r.createdAt ? new Date(r.createdAt) : null;
-      var dateStr = d ? (d.getMonth()+1)+'/'+(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes()) : '';
-      var fc = r.familyCode ? '<span style="font-size:10px;color:var(--muted);margin-left:auto">'+r.familyCode+'</span>' : '';
-      return '<div class="reqcard">'
-        +'<div class="reqcard-top"><div class="reqcard-txt">'+escHtml(r.text||'')+'</div><div class="reqcard-date">'+dateStr+'</div></div>'
+      var dateStr = d ? '접수: '+(d.getMonth()+1)+'/'+(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes()) : '';
+      var cd = r.completedAt ? new Date(r.completedAt) : null;
+      var completedStr = cd ? '<br>완료: '+(cd.getMonth()+1)+'/'+(cd.getDate())+' '+p2(cd.getHours())+':'+p2(cd.getMinutes()) : '';
+      var selectHtml = '<select class="req-status-select sp-'+st+'" onchange="changeStatus(\''+r.id+'\',this.value)">'
+        +'<option value="접수"'+(st==='접수'?' selected':'')+'>접수</option>'
+        +'<option value="처리중"'+(st==='처리중'?' selected':'')+'>처리중</option>'
+        +'<option value="완료"'+(st==='완료'?' selected':'')+'>완료</option>'
+        +'</select>';
+      return '<div class="reqcard st-'+st+'">'
+        +'<div class="reqcard-top"><div class="reqcard-txt">'+escHtml(r.text||'')+'</div>'
+        +'<div class="reqcard-date">'+dateStr+completedStr+'</div></div>'
         +'<div class="reqcard-foot">'
-        +'<button class="status-pill sp-'+st+'" onclick="cycleStatus(\''+r.id+'\',\''+st+'\')">'+st+'</button>'
-        +'<span style="font-size:11px;color:var(--muted)">'+STATUS_NEXT_LABEL[st]+'</span>'
-        +fc
+        +selectHtml
+        +'<button class="req-del-btn" onclick="deleteRequest(\''+r.id+'\')">🗑</button>'
         +'</div></div>';
     }).join('');
   }
@@ -1250,12 +1262,25 @@ var firebaseConfig = {
     }).catch(function(e) { toast('접수 실패 — ' + e.message); });
   };
 
-  window.cycleStatus = function(id, curStatus) {
+  window.changeStatus = function(id, newStatus) {
     if (!db) return;
-    var nextStatus = STATUS_CYCLE[curStatus] || '접수';
-    db.collection('bodeum_requests').doc(id).update({ status: nextStatus })
-      .then(function(){ toast(nextStatus + '으로 변경됐어요'); })
+    var updateData = { status: newStatus };
+    if (newStatus === '완료') {
+      updateData.completedAt = new Date().toISOString();
+    } else {
+      updateData.completedAt = null;
+    }
+    db.collection('bodeum_requests').doc(id).update(updateData)
+      .then(function(){ toast(newStatus + '으로 변경됐어요'); })
       .catch(function(e){ toast('변경 실패 — ' + e.message); });
+  };
+
+  window.deleteRequest = function(id) {
+    if (!db) return;
+    if (!window.confirm('이 요청을 삭제할까요?')) return;
+    db.collection('bodeum_requests').doc(id).delete()
+      .then(function(){ toast('삭제됐어요'); })
+      .catch(function(e){ toast('삭제 실패 — ' + e.message); });
   };
 
   function escHtml(str) {
