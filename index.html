@@ -314,6 +314,7 @@ html,body{height:100%;overflow:hidden}
           </div>
           <div style="text-align:right">
             <div class="ssub" id="h-wsub" style="font-size:11px">기록 없음</div>
+            <div id="h-wdiff" style="font-size:12px;font-weight:600;margin-top:3px"></div>
           </div>
         </div>
       </div>
@@ -802,13 +803,24 @@ var firebaseConfig = {
     g('h-dcnt').textContent = td24.length;
     g('h-dcntsub').textContent = '회';
 
-    var lw = (DB.weights||[]).slice().sort(function(a,b){ return new Date(b.time)-new Date(a.time); })[0];
+    var wSorted = (DB.weights||[]).slice().sort(function(a,b){ return new Date(b.time)-new Date(a.time); });
+    var lw = wSorted[0], lw2 = wSorted[1];
     if (lw) {
       g('h-wkg').textContent = lw.kg.toFixed(2) + ' kg';
       g('h-wsub').textContent = agoStr(lw.time);
+      if (lw2) {
+        var diffG = Math.round((lw.kg - lw2.kg) * 1000);
+        var diffEl = g('h-wdiff');
+        if (diffG > 0) { diffEl.textContent = '+' + diffG + 'g'; diffEl.style.color = 'var(--cw)'; }
+        else if (diffG < 0) { diffEl.textContent = diffG + 'g'; diffEl.style.color = 'var(--cd)'; }
+        else { diffEl.textContent = '±0g'; diffEl.style.color = 'var(--muted)'; }
+      } else {
+        g('h-wdiff').textContent = '';
+      }
     } else {
       g('h-wkg').textContent = '—';
       g('h-wsub').textContent = '기록 없음';
+      g('h-wdiff').textContent = '';
     }
 
     var all = [];
