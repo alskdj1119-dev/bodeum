@@ -266,7 +266,10 @@ html,body{height:100%;overflow:hidden}
   <main class="content">
     <!-- 홈 -->
     <div class="panel active" id="panel-home">
-      <h1 class="daytitle" id="homeTitle" style="font-size:19px;margin-bottom:16px">할 수 있다! 김이엘 육성기록</h1>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
+        <h1 class="daytitle" id="homeTitle" style="font-size:19px;margin-bottom:0;flex:1">할 수 있다! 김이엘 육성기록</h1>
+        <div id="h-daycount" style="text-align:right;font-size:11px;color:var(--muted);line-height:1.5;padding-top:2px;flex-shrink:0;margin-left:10px"></div>
+      </div>
 
       <!-- 직전 섹션 -->
       <p class="seclbl" style="margin-bottom:10px">직전</p>
@@ -361,6 +364,17 @@ html,body{height:100%;overflow:hidden}
       <p class="eyebrow">설정</p>
       <h1 class="daytitle" style="font-size:20px;margin-bottom:20px">설정</h1>
 
+      <!-- 아이 정보 -->
+      <p class="seclbl" style="margin-bottom:8px">아이 정보</p>
+      <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:20px">
+        <div class="fld" style="margin-bottom:12px"><div class="flbl">아이 이름</div><input type="text" class="finp" id="baby-name" placeholder="예: 김이엘"></div>
+        <div class="fld" style="margin-bottom:12px"><div class="flbl">태명</div><input type="text" class="finp" id="baby-prenatal" placeholder="예: 콩순이"></div>
+        <div class="fld" style="margin-bottom:12px"><div class="flbl">태어난 날짜</div><input type="date" class="finp" id="baby-birthdate"></div>
+        <div class="fld" style="margin-bottom:12px"><div class="flbl">태어난 시간</div><input type="time" class="finp" id="baby-birthtime"></div>
+        <div class="fld" style="margin-bottom:14px"><div class="flbl">출생 몸무게 (kg)</div><input type="number" class="finp" id="baby-birthweight" placeholder="예: 3.25" min="0" max="6" step="0.01"></div>
+        <button onclick="saveBabyInfo()" style="width:100%;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:12px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer">저장</button>
+      </div>
+
       <!-- 가족 코드 -->
       <p class="seclbl" style="margin-bottom:8px">가족 코드</p>
       <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:20px">
@@ -391,6 +405,20 @@ html,body{height:100%;overflow:hidden}
 
     <!-- 수정기록 -->
     <div class="panel" id="panel-changelog">
+      <div class="clver">
+        <div class="clver-hdr"><span class="clver-badge">v1.3</span><span class="clver-date">2026년 8월</span></div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>체중 기록 탭 추가 — 00.00 kg 다이얼 방식 입력, 기록 목록</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>홈 화면 최근 체중에 직전 기록 대비 증감(g) 표시</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>아이 정보 설정 — 이름 · 태명 · 태어난 날짜/시간 · 출생 체중</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>홈 화면 우측에 "아이 이름와 만난지 N일차" 표시</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>직수 기록 수동 ml 수정 기능 추가</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>직전 24시간 수유량 합계에 직수 ml 포함</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>기존 직수 기록 소급 ml 자동 계산 (15분 기준 50ml)</div>
+        <div class="clver-item"><span class="clver-tag tag-change">변경</span>전체 색상 팔레트 변경 — 크림 / 스카이블루 / 퍼플 / 브라운</div>
+        <div class="clver-item"><span class="clver-tag tag-change">변경</span>다크모드 추가 지원 (시스템 설정 / 수동 전환)</div>
+        <div class="clver-item"><span class="clver-tag tag-change">변경</span>홈 체중 라벨 "방금 전" → "직전 체중" 으로 수정</div>
+        <div class="clver-item"><span class="clver-tag tag-fix">수정</span>체중 다이얼 마우스 스크롤 시 2칸씩 이동되던 문제 수정</div>
+      </div>
       <div class="clver">
         <div class="clver-hdr"><span class="clver-badge">v1.2</span><span class="clver-date">2026년 8월</span></div>
         <div class="clver-item"><span class="clver-tag tag-new">NEW</span>수면 장소에 원형쿠션 추가 (침대 / 품 / 원형쿠션)</div>
@@ -562,6 +590,9 @@ var firebaseConfig = {
 
   // ── STATE ─────────────────────────────────────────────────
   var DB = { feeds: [], diapers: [], sleeps: [], weights: [] };
+  var BABY_KEY = 'bodeum_baby_info';
+  var Baby = { name:'김이엘', prenatal:'', birthDate:'', birthTime:'', birthWeight:'' };
+  (function(){ try { var b = localStorage.getItem(BABY_KEY); if (b) Baby = Object.assign({}, Baby, JSON.parse(b)); } catch(_){} })();
   var db = null;
   var docRef = null;
   var unsubscribe = null;
@@ -770,6 +801,21 @@ var firebaseConfig = {
     var TF = { breast:'모유', bottle:'분유' };
     var TD = { wet:'소변', soiled:'대변', both:'소변+대변' };
 
+    // 타이틀 + 일차 표시
+    var babyName = Baby.name || '아이';
+    if (g('homeTitle')) g('homeTitle').textContent = '할 수 있다! ' + babyName + ' 육성기록';
+    var dayEl = g('h-daycount');
+    if (dayEl) {
+      if (Baby.birthDate) {
+        var birth = new Date(Baby.birthDate + 'T00:00:00');
+        var tod = new Date(); tod.setHours(0,0,0,0);
+        var days = Math.floor((tod - birth) / 86400000) + 1;
+        if (days >= 1) {
+          dayEl.innerHTML = babyName + '와<br>만난지 <strong style="font-size:15px;color:var(--sage)">' + days + '일차</strong>';
+        } else { dayEl.textContent = ''; }
+      } else { dayEl.textContent = ''; }
+    }
+
     var lf = DB.feeds.slice().sort(function(a,b){ return new Date(b.start||b.time)-new Date(a.start||a.time); })[0];
     g('h-fago').textContent = lf ? agoStr(lf.start||lf.time) : '—';
     g('h-fsub').textContent = lf ? fmt(lf.start||lf.time) : '기록 없음';
@@ -807,7 +853,7 @@ var firebaseConfig = {
     var lw = wSorted[0], lw2 = wSorted[1];
     if (lw) {
       g('h-wkg').textContent = lw.kg.toFixed(2) + ' kg';
-      g('h-wsub').textContent = agoStr(lw.time);
+      g('h-wsub').textContent = '직전 체중';
       if (lw2) {
         var diffG = Math.round((lw.kg - lw2.kg) * 1000);
         var diffEl = g('h-wdiff');
@@ -1172,6 +1218,12 @@ var firebaseConfig = {
       var code = '';
       try { code = localStorage.getItem('bodeum_family_code') || ''; } catch(_) {}
       if (g('settingsCode')) g('settingsCode').textContent = code || '—';
+      // 아이 정보 필드 채우기
+      if (g('baby-name')) g('baby-name').value = Baby.name || '';
+      if (g('baby-prenatal')) g('baby-prenatal').value = Baby.prenatal || '';
+      if (g('baby-birthdate')) g('baby-birthdate').value = Baby.birthDate || '';
+      if (g('baby-birthtime')) g('baby-birthtime').value = Baby.birthTime || '';
+      if (g('baby-birthweight')) g('baby-birthweight').value = Baby.birthWeight || '';
     }
     if (tab === 'requests') renderRequests();
     if (tab === 'weight') renderWeights();
@@ -1185,6 +1237,17 @@ var firebaseConfig = {
     goTab(sub);
     // goTab이 홈으로 리셋한 onclick을 서브탭 출처로 덮어씌움
     g('backBtn').onclick = function(){ goTab(_prevTab); };
+  };
+
+  window.saveBabyInfo = function() {
+    Baby.name        = (g('baby-name').value || '').trim() || '아이';
+    Baby.prenatal    = (g('baby-prenatal').value || '').trim();
+    Baby.birthDate   = g('baby-birthdate').value || '';
+    Baby.birthTime   = g('baby-birthtime').value || '';
+    Baby.birthWeight = g('baby-birthweight').value || '';
+    try { localStorage.setItem(BABY_KEY, JSON.stringify(Baby)); } catch(_) {}
+    renderHome();
+    toast('아이 정보가 저장됐어요 ✓');
   };
 
   window.copyFamilyCode = function() {
