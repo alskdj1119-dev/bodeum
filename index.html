@@ -13,6 +13,7 @@
 /* ── THEME ───────────────────────────────────────────────── */
 :root {
   --bg:#FDF4D2;--surf:#FFFEF5;--surf2:#F5EEC8;--ink:#2C2438;--muted:#8A7E96;
+  --cw:#5E9E8D;--ww:rgba(94,158,141,.12);
   --sage:#7660A2;--s-wash:#EDE7F6;
   --cf:#5B8CB5;--cd:#946D6D;--cs:#8B7BAA;
   --fw:rgba(91,140,181,.13);--dw:rgba(148,109,109,.12);--sw:rgba(139,123,170,.12);
@@ -72,6 +73,18 @@ html,body{height:100%;overflow:hidden}
 .nb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nb.active{color:var(--sage)}
 
+/* ── WEIGHT DIAL ─────────────────────────────────────────── */
+.wdial-wrap{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 0 16px}
+.wdial-cont{position:relative;display:flex;align-items:center;gap:2px}
+.wdial-bar{position:absolute;top:44px;left:0;right:0;height:44px;background:var(--s-wash);border-radius:10px;pointer-events:none;z-index:1}
+.wdial-col{position:relative;z-index:2;width:52px;height:132px;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;text-align:center;padding:44px 0}
+.wdial-col::-webkit-scrollbar{display:none}
+.wdial-item{height:44px;line-height:44px;font-size:28px;font-weight:700;color:var(--ink);scroll-snap-align:center;user-select:none;-webkit-user-select:none}
+.wdial-sep{font-size:30px;font-weight:700;color:var(--ink);line-height:44px;margin-top:44px;z-index:2;position:relative}
+.wdial-unit{font-size:15px;font-weight:600;color:var(--muted);margin-top:44px;z-index:2;position:relative;margin-left:4px}
+.wdial-fade{position:absolute;inset:0;background:linear-gradient(to bottom,var(--surf) 0%,transparent 35%,transparent 65%,var(--surf) 100%);pointer-events:none;z-index:3;border-radius:var(--r)}
+.wdial-date{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+
 /* ── HOME ────────────────────────────────────────────────── */
 .eyebrow{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 .daytitle{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);margin-bottom:20px;line-height:1.25}
@@ -111,7 +124,7 @@ html,body{height:100%;overflow:hidden}
 .daylbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .ec{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh);margin-bottom:8px}
 .edot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.edot.f{background:var(--cf)}.edot.d{background:var(--cd)}.edot.s{background:var(--cs)}
+.edot.f{background:var(--cf)}.edot.d{background:var(--cd)}.edot.s{background:var(--cs)}.edot.w,.tldot.w{background:var(--cw)}.sico.w{color:var(--cw)}
 .emain{flex:1;min-width:0}
 .epri{font-size:14px;font-weight:500;color:var(--ink)}
 .esec{font-size:12px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -288,6 +301,22 @@ html,body{height:100%;overflow:hidden}
           <div class="sval" id="h-dcnt">0</div><div class="ssub" id="h-dcntsub">회</div>
         </div>
       </div>
+      <!-- 체중 섹션 -->
+      <p class="seclbl" style="margin-bottom:10px">최근 체중</p>
+      <div class="sgrid" style="grid-template-columns:1fr;margin-bottom:20px">
+        <div class="sc" onclick="goSubTab('weight')" style="cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:space-between;padding:14px 18px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="sico w" style="width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></div>
+            <div>
+              <div class="slbl" style="margin-bottom:2px">체중</div>
+              <div class="sval" id="h-wkg" style="font-size:20px;font-weight:700;color:var(--cw)">—</div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="ssub" id="h-wsub" style="font-size:11px">기록 없음</div>
+          </div>
+        </div>
+      </div>
       <p class="seclbl">빠른 기록</p>
       <div class="qgrid">
         <button class="qbtn qf" onclick="openM('feed')"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>수유</button>
@@ -389,6 +418,12 @@ html,body{height:100%;overflow:hidden}
       </div>
     </div>
 
+    <!-- 체중 -->
+    <div class="panel" id="panel-weight">
+      <div class="loghdr"><span class="logtitle">체중</span><span class="badge" id="wbadge">0</span><button class="addbtn" onclick="openM('weight')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>추가</button></div>
+      <div id="weightList"><div class="empty"><div class="empty-ico">⚖️</div><div class="empty-lbl">체중 기록이 없어요</div></div></div>
+    </div>
+
     <!-- 개선요청 게시판 -->
     <div class="panel" id="panel-requests">
       <div class="loghdr" style="margin-bottom:14px">
@@ -410,8 +445,33 @@ html,body{height:100%;overflow:hidden}
     <button class="nb" id="nav-feed" onclick="goTab('feed')"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>수유</button>
     <button class="nb" id="nav-diaper" onclick="goTab('diaper')"><svg viewBox="0 0 24 24"><path d="M2 9.5L5 6h14l3 3.5v5L19 18H5l-3-3.5V9.5z"/><path d="M2 9.5h5l3 3 3-3h5"/></svg>기저귀</button>
     <button class="nb" id="nav-sleep" onclick="goTab('sleep')"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>수면</button>
+    <button class="nb" id="nav-weight" onclick="goTab('weight')"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>체중</button>
     <button class="nb" id="nav-settings" onclick="goTab('settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>설정</button>
   </nav>
+</div>
+
+<!-- 체중 모달 -->
+<div class="mbg" id="modal-weight">
+  <div class="msheet">
+    <div class="mhandle"></div><div class="mtitle">체중 기록</div>
+    <div class="mbody">
+      <div class="fld"><div class="flbl">측정 시간</div><input type="datetime-local" class="finp" id="w-time"></div>
+      <div class="flbl" style="margin-bottom:8px">체중</div>
+      <div class="wdial-wrap">
+        <div class="wdial-cont" id="wdial-cont">
+          <div class="wdial-bar"></div>
+          <div class="wdial-col" id="wdc0"></div>
+          <div class="wdial-col" id="wdc1"></div>
+          <div class="wdial-sep">.</div>
+          <div class="wdial-col" id="wdc2"></div>
+          <div class="wdial-col" id="wdc3"></div>
+          <span class="wdial-unit">kg</span>
+          <div class="wdial-fade"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot"><button class="bcan" onclick="closeM('weight')">취소</button><button class="bpri" onclick="saveWeight()">저장</button></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -500,7 +560,7 @@ var firebaseConfig = {
   var COLLECTION     = 'families';
 
   // ── STATE ─────────────────────────────────────────────────
-  var DB = { feeds: [], diapers: [], sleeps: [] };
+  var DB = { feeds: [], diapers: [], sleeps: [], weights: [] };
   var db = null;
   var docRef = null;
   var unsubscribe = null;
@@ -522,6 +582,7 @@ var firebaseConfig = {
     if (!Array.isArray(DB.feeds))   DB.feeds   = [];
     if (!Array.isArray(DB.diapers)) DB.diapers = [];
     if (!Array.isArray(DB.sleeps))  DB.sleeps  = [];
+    if (!Array.isArray(DB.weights)) DB.weights = [];
   }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
 
@@ -577,11 +638,11 @@ var firebaseConfig = {
       if (_skipNextSnapshot) { _skipNextSnapshot = false; return; }
       var data = snapshot.data();
       if (data) {
-        DB = { feeds: data.feeds || [], diapers: data.diapers || [], sleeps: data.sleeps || [] };
+        DB = { feeds: data.feeds || [], diapers: data.diapers || [], sleeps: data.sleeps || [], weights: data.weights || [] };
         ensure();
       } else {
         // Document doesn't exist yet — empty state
-        DB = { feeds: [], diapers: [], sleeps: [] };
+        DB = { feeds: [], diapers: [], sleeps: [], weights: [] };
       }
       isOnline = !snapshot.metadata.fromCache;
       updateSyncDot(isOnline ? 'online' : 'cache');
@@ -610,7 +671,7 @@ var firebaseConfig = {
     setSaving(true);
     if (docRef) {
       _skipNextSnapshot = false;
-      return docRef.set({ feeds: DB.feeds, diapers: DB.diapers, sleeps: DB.sleeps })
+      return docRef.set({ feeds: DB.feeds, diapers: DB.diapers, sleeps: DB.sleeps, weights: DB.weights })
         .then(function() {
           setSaving(false);
         })
@@ -741,6 +802,15 @@ var firebaseConfig = {
     g('h-dcnt').textContent = td24.length;
     g('h-dcntsub').textContent = '회';
 
+    var lw = (DB.weights||[]).slice().sort(function(a,b){ return new Date(b.time)-new Date(a.time); })[0];
+    if (lw) {
+      g('h-wkg').textContent = lw.kg.toFixed(2) + ' kg';
+      g('h-wsub').textContent = agoStr(lw.time);
+    } else {
+      g('h-wkg').textContent = '—';
+      g('h-wsub').textContent = '기록 없음';
+    }
+
     var all = [];
     DB.feeds.forEach(function(f) {
       var t = f.start||f.time;
@@ -846,7 +916,84 @@ var firebaseConfig = {
     }).join('');
   }
 
-  function renderAll() { renderHome(); renderFeeds(); renderDiapers(); renderSleeps(); }
+  // ── WEIGHT DIAL ───────────────────────────────────────────
+  function initWeightDial(d0, d1, d2, d3) {
+    var cols = [g('wdc0'), g('wdc1'), g('wdc2'), g('wdc3')];
+    cols.forEach(function(col) {
+      if (!col) return;
+      var html = '';
+      for (var n = 0; n <= 9; n++) html += '<div class="wdial-item">' + n + '</div>';
+      col.innerHTML = html;
+    });
+    var vals = [d0||0, d1||3, d2||5, d3||0];
+    requestAnimationFrame(function() {
+      cols.forEach(function(col, i) {
+        if (col) col.scrollTop = vals[i] * 44;
+      });
+    });
+  }
+  function readWeightDial() {
+    var cols = [g('wdc0'), g('wdc1'), g('wdc2'), g('wdc3')];
+    var digits = cols.map(function(col) {
+      return col ? Math.round(col.scrollTop / 44) % 10 : 0;
+    });
+    return (digits[0] * 10 + digits[1]) + (digits[2] * 0.1 + digits[3] * 0.01);
+  }
+  function renderWeights() {
+    var sorted = (DB.weights || []).slice().sort(function(a,b){ return new Date(b.time)-new Date(a.time); });
+    var el = g('weightList'); if (!el) return;
+    var badge = g('wbadge'); if (badge) badge.textContent = sorted.length;
+    if (!sorted.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">⚖️</div><div class="empty-lbl">체중 기록이 없어요</div></div>'; return; }
+    el.innerHTML = groupByDay(sorted, function(w){ return w.time; }).map(function(g2) {
+      return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(w) {
+        return '<div class="ec" onclick="openEditWeight(\''+w.id+'\')" style="cursor:pointer"><div class="edot w"></div><div class="emain"><div class="epri">'+w.kg.toFixed(2)+' kg</div><div class="esec">'+fmt(w.time)+'</div></div><div class="etime">'+fmt(w.time)+'<br><span class="eago">'+agoStr(w.time)+'</span></div><button class="edel" onclick="event.stopPropagation();delWeight(\''+w.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+      }).join('')+'</div>';
+    }).join('');
+  }
+  window.openM_weight = function() {
+    _editId = null; _editType = null;
+    var now = toLocalISO(new Date().toISOString());
+    g('w-time').value = now;
+    g('modal-weight').querySelector('.mtitle').textContent = '체중 기록';
+    g('modal-weight').querySelector('.bpri').textContent = '저장';
+    initWeightDial(0, 3, 5, 0);
+    g('modal-weight').classList.add('open');
+  };
+  window.openEditWeight = function(id) {
+    var rec = null;
+    (DB.weights||[]).forEach(function(w){ if (w.id===id) rec=w; });
+    if (!rec) return;
+    _editId = id; _editType = 'weights';
+    g('w-time').value = toLocalISO(rec.time);
+    g('modal-weight').querySelector('.mtitle').textContent = '체중 수정';
+    g('modal-weight').querySelector('.bpri').textContent = '수정 저장';
+    var kg = rec.kg;
+    var d0 = Math.floor(kg / 10) % 10;
+    var d1 = Math.floor(kg) % 10;
+    var d2 = Math.floor((kg * 10) % 10);
+    var d3 = Math.floor((kg * 100) % 10);
+    initWeightDial(d0, d1, d2, d3);
+    g('modal-weight').classList.add('open');
+  };
+  window.saveWeight = function() {
+    var tv = g('w-time').value; if (!tv) { toast('시간을 입력해주세요'); return; }
+    var kg = readWeightDial();
+    if (kg <= 0) { toast('체중을 설정해주세요'); return; }
+    var rec = { time: new Date(tv).toISOString(), kg: Math.round(kg * 100) / 100 };
+    if (_editId) {
+      DB.weights = (DB.weights||[]).map(function(w){ return w.id===_editId ? Object.assign({},w,rec) : w; });
+      closeM('weight'); saveDB().then(renderAll); return;
+    }
+    if (!DB.weights) DB.weights = [];
+    DB.weights.push(Object.assign({ id: uid() }, rec));
+    closeM('weight'); saveDB().then(renderAll);
+  };
+  window.delWeight = function(id) {
+    DB.weights = (DB.weights||[]).filter(function(w){ return w.id !== id; });
+    saveDB().then(renderAll);
+  };
+
+  function renderAll() { renderHome(); renderFeeds(); renderDiapers(); renderSleeps(); renderWeights(); }
 
   // ── FEED TIMER ────────────────────────────────────────────
   function findActiveFeed() {
@@ -1005,6 +1152,7 @@ var firebaseConfig = {
       if (g('settingsCode')) g('settingsCode').textContent = code || '—';
     }
     if (tab === 'requests') renderRequests();
+    if (tab === 'weight') renderWeights();
     if (!isHome) renderAll();
     setDate();
   };
@@ -1045,6 +1193,7 @@ var firebaseConfig = {
   }
 
   window.openM = function(type) {
+    if (type === 'weight') { openM_weight(); return; }
     _editId = null; _editType = null;
     var n = nowISO();
     if (type === 'feed') {
