@@ -227,7 +227,7 @@ html,body{height:100%;overflow:hidden}
 <!-- ── MAIN APP ────────────────────────────────────────────── -->
 <div id="app" style="display:none">
   <header class="hdr">
-    <button class="backbtn" id="backBtn" onclick="goTab('home');_prevTab='home'" style="display:none">
+    <button class="backbtn" id="backBtn" style="display:none">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>뒤로
     </button>
     <svg class="logo" id="hdrLogo" viewBox="0 0 100 100">
@@ -852,7 +852,6 @@ var firebaseConfig = {
     tick(); _feedTimer = setInterval(tick, 1000);
   }
   function stopFeedTimer() { if (_feedTimer) { clearInterval(_feedTimer); _feedTimer = null; _feedTimerId = null; } }
-  function restartFeedTimer() { var a = findActiveFeed(); if (a && _feedTimerId !== a.id) startFeedTimer(a); }
 
   // ── SLEEP TIMER ───────────────────────────────────────────
   function startSleepTimer(entry) {
@@ -963,12 +962,13 @@ var firebaseConfig = {
     var panel = g('panel-'+tab);
     if (!panel) return;
     panel.classList.add('active');
-    // only activate nav button for main tabs
     var navBtn = g('nav-'+tab);
     if (navBtn) navBtn.classList.add('active');
-    // show/hide back button and logo
     var isHome = (tab === 'home');
-    g('backBtn').style.display = isHome ? 'none' : '';
+    var bb = g('backBtn');
+    bb.style.display = isHome ? 'none' : '';
+    // 항상 뒤로가기를 홈으로 리셋 (goSubTab이 필요 시 덮어씀)
+    bb.onclick = function(){ goTab('home'); };
     g('hdrLogo').style.display = isHome ? '' : 'none';
     g('hdrAppname').style.display = isHome ? '' : 'none';
     if (tab === 'settings') {
@@ -978,15 +978,15 @@ var firebaseConfig = {
     }
     if (tab === 'requests') renderRequests();
     if (!isHome) renderAll();
+    setDate();
   };
 
   window.goSubTab = function(sub) {
-    // remember where we came from for back button
     var cur = document.querySelector('.panel.active');
     _prevTab = cur ? cur.id.replace('panel-','') : 'settings';
-    // update back button to return to _prevTab
-    g('backBtn').onclick = function(){ goTab(_prevTab); _prevTab = 'home'; };
     goTab(sub);
+    // goTab이 홈으로 리셋한 onclick을 서브탭 출처로 덮어씌움
+    g('backBtn').onclick = function(){ goTab(_prevTab); };
   };
 
   window.copyFamilyCode = function() {
@@ -1111,12 +1111,9 @@ var firebaseConfig = {
     var isEdit = !!_editId;
     g('row-subtype').style.display  = isBreast ? '' : 'none';
     // for direct breast: hide amount/consumed when in timer mode (new), show in edit mode
-    g('row-amount').style.display   = isDirect && !isEdit ? 'none' : (isDirect ? '' : '');
-    g('row-consumed').style.display = isDirect && !isEdit ? 'none' : (isDirect ? '' : '');
+    g('row-amount').style.display   = (isDirect && !isEdit) ? 'none' : '';
+    g('row-consumed').style.display = (isDirect && !isEdit) ? 'none' : '';
     g('row-side').style.display     = isDirect ? '' : 'none';
-    // update amount label
-    var amtLbl = g('row-amount').querySelector('.flbl');
-    if (amtLbl) amtLbl.textContent = isDirect ? '준비한 수유량 (ml)' : '준비한 수유량 (ml)';
   }
   window.pickFeedType = function(btn, val) { pick(btn,'seg-ft','f-type'); updateFeedFields(); };
   window.pickFeedSub  = function(btn, val) { pick(btn,'seg-fsub','f-subtype'); updateFeedFields(); };
@@ -1197,7 +1194,6 @@ var firebaseConfig = {
   };
 
   // ── REQUESTS ──────────────────────────────────────────────
-  var STATUS_LABELS = ['접수','처리중','완료'];
 
   function subscribeRequests() {
     if (!db) return;
