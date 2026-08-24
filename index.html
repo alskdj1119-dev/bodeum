@@ -738,7 +738,14 @@ var firebaseConfig = {
     DB.feeds.forEach(function(f) {
       var t = f.start||f.time;
       var dur = (f.start && f.end) ? ' · ' + durStr(new Date(f.end)-new Date(f.start)) : '';
-      var famtStr = f.consumedAmount!=null ? '섭취 '+f.consumedAmount+'ml' : (f.amount?f.amount+'ml':'');
+      var fAmt = f.amount;
+      if (fAmt == null && f.type==='breast' && f.subtype==='direct' && f.start && f.end) {
+        var felms = new Date(f.end) - new Date(f.start);
+        fAmt = Math.round(Math.round(felms/10000) * 50/90);
+      }
+      var famtStr = f.consumedAmount!=null && fAmt!=null ? '준비 '+fAmt+'ml / 섭취 '+f.consumedAmount+'ml'
+                  : f.consumedAmount!=null ? '섭취 '+f.consumedAmount+'ml'
+                  : fAmt ? fAmt+'ml' : '';
       all.push({ t:'f', time:t, label:'수유 — '+(TF[f.type]||''), sub:famtStr+dur });
     });
     DB.diapers.forEach(function(d){ all.push({ t:'d', time:d.time, label:'기저귀 — '+(TD[d.type]||''), sub:d.note||'' }); });
@@ -779,9 +786,15 @@ var firebaseConfig = {
         var durTxt = (f.start&&f.end) ? durStr(new Date(f.end)-new Date(f.start)) : '';
         var timeRange = (f.start&&f.end) ? fmt(f.start)+' → '+fmt(f.end) : fmt(t);
         var typeLbl = (TF[f.type]||'수유')+(f.subtype?' · '+(TSU[f.subtype]||''):'');
+        // 직수 구기록 소급 계산: amount null이지만 start/end 있으면 시간으로 계산
+        var dispAmt = f.amount;
+        if (dispAmt == null && f.type==='breast' && f.subtype==='direct' && f.start && f.end) {
+          var elms = new Date(f.end) - new Date(f.start);
+          dispAmt = Math.round(Math.round(elms/10000) * 50/90);
+        }
         var amtStr = '';
-        if (f.amount != null && f.consumedAmount != null) amtStr = '준비 '+f.amount+'ml / 섭취 '+f.consumedAmount+'ml';
-        else if (f.amount != null) amtStr = f.amount+'ml';
+        if (dispAmt != null && f.consumedAmount != null) amtStr = '준비 '+dispAmt+'ml / 섭취 '+f.consumedAmount+'ml';
+        else if (dispAmt != null) amtStr = dispAmt+'ml';
         else if (f.consumedAmount != null) amtStr = '섭취 '+f.consumedAmount+'ml';
         var details = [amtStr, durTxt, f.side?(TS[f.side]||''):'', f.note||''].filter(Boolean).join(' · ');
         return '<div class="ec" onclick="openEdit(\'feeds\',\''+f.id+'\')" style="cursor:pointer"><div class="edot f"></div><div class="emain"><div class="epri">'+typeLbl+'</div><div class="esec">'+(timeRange+(details?' · '+details:''))+'</div></div><div class="etime">'+fmt(t)+'<br><span class="eago">'+agoStr(t)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'feeds\',\''+f.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
