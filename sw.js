@@ -30,8 +30,11 @@ function dbPut(db, key, val) {
 /* ── 알림 타이머 ── */
 var _hungerTimer = null;
 var _feedTimer = null;
+var _babyName = '아이'; // 모듈 레벨 — activate 재시작 시에도 유지 (IndexedDB에서 복원)
 
-function scheduleNotifications(lastFeedTime, activeFeedStart) {
+function scheduleNotifications(lastFeedTime, activeFeedStart, babyName) {
+  if (babyName) _babyName = babyName;
+  var babyName = _babyName; // 로컬로 참조
   clearTimeout(_hungerTimer);
   clearTimeout(_feedTimer);
 
@@ -107,8 +110,9 @@ self.addEventListener('activate', function(e) {
     }).then(function() {
       /* SW 재시작 시 DB에서 상태 복원 */
       return openDB().then(function(db) {
-        return Promise.all([dbGet(db, 'lastFeedTime'), dbGet(db, 'activeFeedStart')]);
+        return Promise.all([dbGet(db, 'lastFeedTime'), dbGet(db, 'activeFeedStart'), dbGet(db, 'babyName')]);
       }).then(function(vals) {
+        if (vals[2]) _babyName = vals[2];
         if (vals[0] || vals[1]) scheduleNotifications(vals[0], vals[1]);
       }).catch(function() {});
     })
@@ -138,11 +142,12 @@ self.addEventListener('message', function(e) {
   openDB().then(function(db) {
     return Promise.all([
       dbPut(db, 'lastFeedTime', lastFeedTime),
-      dbPut(db, 'activeFeedStart', activeFeedStart)
+      dbPut(db, 'activeFeedStart', activeFeedStart),
+      dbPut(db, 'babyName', babyName)
     ]);
   }).catch(function() {});
 
-  scheduleNotifications(lastFeedTime, activeFeedStart);
+  scheduleNotifications(lastFeedTime, activeFeedStart, babyName);
 });
 
 /* ── 알림 클릭 → 앱 포커스 ── */
