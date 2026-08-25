@@ -45,7 +45,7 @@ function scheduleNotifications(lastFeedTime, activeFeedStart) {
       /* 이미 시간이 지남 — 4시간 이내면 즉시 알림 */
       if (elapsed < 4 * 3600 * 1000) {
         self.registration.showNotification('보듬 🌿', {
-          body: '이엘이 배고플시간, 맘마 준비해주세요.',
+          body: babyName+'가 배고플시간, 맘마 준비해주세요.',
           tag: 'hunger',
           renotify: false,
           requireInteraction: false
@@ -54,7 +54,7 @@ function scheduleNotifications(lastFeedTime, activeFeedStart) {
     } else {
       _hungerTimer = setTimeout(function() {
         self.registration.showNotification('보듬 🌿', {
-          body: '이엘이 배고플시간, 맘마 준비해주세요.',
+          body: babyName+'가 배고플시간, 맘마 준비해주세요.',
           tag: 'hunger',
           renotify: true,
           requireInteraction: false
@@ -133,6 +133,7 @@ self.addEventListener('message', function(e) {
   if (!e.data || e.data.type !== 'FEED_UPDATE') return;
   var lastFeedTime = e.data.lastFeedTime || null;
   var activeFeedStart = e.data.activeFeedStart || null;
+  var babyName = e.data.babyName || '아이';
 
   openDB().then(function(db) {
     return Promise.all([

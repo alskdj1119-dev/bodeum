@@ -64,11 +64,9 @@
   --fw:rgba(127,175,145,.13);--dw:rgba(196,154,107,.12);--sw:rgba(120,153,184,.12);
   --bdr:rgba(237,232,225,.08);--sh:0 2px 6px rgba(0,0,0,.3);
 }}
-:root[data-theme="light"]{--bg:#FDF4D2;--surf:#FFFEF5;--surf2:#F5EEC8;--ink:#2C2438;--muted:#8A7E96;--sage:#7660A2;--s-wash:#EDE7F6;--cf:#5B8CB5;--cd:#946D6D;--cs:#8B7BAA;--fw:rgba(91,140,181,.13);--dw:rgba(148,109,109,.12);--sw:rgba(139,123,170,.12);--bdr:rgba(44,36,54,.08);--sh:0 1px 4px rgba(44,36,54,.06);}
 :root[data-theme="dark"]{--bg:#18150F;--surf:#221E17;--surf2:#2C271F;--ink:#EDE8E1;--muted:#8A8278;--sage:#7FAF91;--s-wash:rgba(127,175,145,.13);--cf:#7FAF91;--cd:#C49A6B;--cs:#7899B8;--fw:rgba(127,175,145,.13);--dw:rgba(196,154,107,.12);--sw:rgba(120,153,184,.12);--bdr:rgba(237,232,225,.08);--sh:0 2px 6px rgba(0,0,0,.3);}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
 body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 
 /* ── SETUP OVERLAY ───────────────────────────────────────── */
@@ -144,21 +142,16 @@ html,body{height:100%;overflow:hidden}
 }
 
 /* ── 전역 버튼 탭 피드백 ── */
-.nb{transition:color .15s, transform .12s cubic-bezier(.34,1.56,.64,1)}
 .nb:active{transform:scale(.82)}
 .nb.tab-bounce{animation:tab-bounce .3s cubic-bezier(.34,1.56,.64,1)}
 @keyframes tab-bounce{0%{transform:scale(1)}40%{transform:scale(.75)}100%{transform:scale(1)}}
 
-.bpri{transition:transform .12s cubic-bezier(.34,1.56,.64,1), opacity .15s, background .2s}
 .bpri:active{transform:scale(.96)}
 .bpri.success{background:var(--cw,#5E9E8D) !important;transition:background .25s}
-.bcan{transition:transform .12s, opacity .15s}
 .bcan:active{transform:scale(.96);opacity:.7}
 
-.addbtn{transition:transform .12s cubic-bezier(.34,1.56,.64,1), opacity .15s}
 .addbtn:active{transform:scale(.9)}
 
-.backbtn{transition:transform .12s, opacity .15s}
 .backbtn:active{transform:translateX(-3px);opacity:.6}
 
 /* ── 카드 탭 피드백 ── */
@@ -192,26 +185,17 @@ html,body{height:100%;overflow:hidden}
 .slive.banner-in{animation:banner-in .35s cubic-bezier(.32,1,.32,1) both}
 @keyframes banner-in{from{opacity:0;transform:translateY(-10px) scale(.97)}to{opacity:1;transform:none}}
 
-/* ── 체중 차트 선 그리기 ── */
-.chart-line-anim{stroke-dashoffset:0;animation:draw-line .8s cubic-bezier(.4,0,.2,1) forwards}
-@keyframes draw-line{from{stroke-dashoffset:var(--line-len,1000)}to{stroke-dashoffset:0}}
-
-/* ── 숫자 롤 ── */
-@keyframes num-roll{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
-.num-roll{display:inline-block;animation:num-roll .3s cubic-bezier(.34,1.56,.64,1) both}
-
 /* ── 삭제 버튼 피드백 ── */
 .edel{transition:transform .12s, opacity .15s, background .15s}
 .edel:active{transform:scale(.85);opacity:.7}
 
 /* ── sbtn(세그먼트) 탭 ── */
-.sbtn{transition:all .18s cubic-bezier(.4,0,.2,1)}
 .sbtn.on{transform:none}
 
 .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surf);border-top:1px solid var(--bdr);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
-.backbtn{background:none;border:none;padding:4px 8px 4px 0;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:4px;font-family:var(--sans);font-size:14px;font-weight:500;-webkit-tap-highlight-color:transparent}
+.backbtn{background:none;border:none;padding:4px 8px 4px 0;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:4px;font-family:var(--sans);font-size:14px;font-weight:500;-webkit-tap-highlight-color:transparent;transition:transform .12s, opacity .15s}
 .backbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:var(--sans);font-size:10px;font-weight:400;transition:color .15s;-webkit-tap-highlight-color:transparent}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:var(--sans);font-size:10px;font-weight:400;transition:color .15s, transform .12s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent}
 .nb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nb.active{color:var(--sage)}
 
@@ -225,13 +209,12 @@ html,body{height:100%;overflow:hidden}
 .wdial-sep{font-size:30px;font-weight:700;color:var(--ink);line-height:44px;margin-top:44px;z-index:2;position:relative}
 .wdial-unit{font-size:15px;font-weight:600;color:var(--muted);margin-top:44px;z-index:2;position:relative;margin-left:4px}
 .wdial-fade{position:absolute;inset:0;background:linear-gradient(to bottom,var(--surf) 0%,transparent 35%,transparent 65%,var(--surf) 100%);pointer-events:none;z-index:3;border-radius:var(--r)}
-.wdial-date{display:flex;align-items:center;gap:8px;margin-bottom:4px}
 
 /* ── HOME ────────────────────────────────────────────────── */
 .eyebrow{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 .daytitle{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);margin-bottom:20px;line-height:1.25}
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.sc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:15px;box-shadow:var(--sh)}
+.sc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:15px;box-shadow:var(--sh);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .sr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .slbl{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.04em;text-transform:uppercase}
 .sico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center}
@@ -259,12 +242,12 @@ html,body{height:100%;overflow:hidden}
 .loghdr{display:flex;align-items:center;margin-bottom:18px}
 .logtitle{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink)}
 .badge{margin-left:8px;background:var(--s-wash);color:var(--sage);font-size:12px;font-weight:600;padding:2px 8px;border-radius:100px}
-.addbtn{margin-left:auto;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:8px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .15s;-webkit-tap-highlight-color:transparent}
+.addbtn{margin-left:auto;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:8px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:transform .12s cubic-bezier(.34,1.56,.64,1), opacity .15s;-webkit-tap-highlight-color:transparent}
 .addbtn:active{opacity:.8}
 .addbtn svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round}
 .daygrp{margin-bottom:18px}
 .daylbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.ec{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh);margin-bottom:8px}
+.ec{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh);margin-bottom:8px;cursor:pointer}
 .edot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .edot.f{background:var(--cf)}.edot.d{background:var(--cd)}.edot.s{background:var(--cs)}.edot.w,.tldot.w{background:var(--cw)}.sico.w{color:var(--cw)}
 .emain{flex:1;min-width:0}
@@ -305,10 +288,10 @@ html,body{height:100%;overflow:hidden}
 .finp{width:100%;box-sizing:border-box;background:var(--bg);border:1.5px solid var(--bdr);border-radius:12px;padding:11px 14px;font-family:var(--sans);font-size:15px;color:var(--ink);outline:none;transition:border-color .15s}
 .finp:focus{border-color:var(--sage)}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
-.sbtn{flex:1;min-width:60px;padding:9px 6px;border:1.5px solid var(--bdr);border-radius:10px;background:var(--bg);font-family:var(--sans);font-size:13px;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.sbtn{flex:1;min-width:60px;padding:9px 6px;border:1.5px solid var(--bdr);border-radius:10px;background:var(--bg);font-family:var(--sans);font-size:13px;color:var(--muted);cursor:pointer;text-align:center;transition:all .18s cubic-bezier(.4,0,.2,1);-webkit-tap-highlight-color:transparent}
 .sbtn.on{background:var(--sage);border-color:var(--sage);color:#fff;font-weight:600}
 .bpri{flex:1;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:14px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;transition:transform .12s cubic-bezier(.34,1.56,.64,1), opacity .15s, background .2s}
-.bcan{background:var(--surf2);color:var(--muted);border:none;border-radius:100px;padding:14px 20px;font-family:var(--sans);font-size:15px;cursor:pointer}
+.bcan{background:var(--surf2);color:var(--muted);border:none;border-radius:100px;padding:14px 20px;font-family:var(--sans);font-size:15px;cursor:pointer;transition:transform .12s, opacity .15s}
 ::-webkit-scrollbar{width:0}
 
 /* ── SETTINGS MENU ITEMS ─────────────────────────────────── */
@@ -327,7 +310,6 @@ html,body{height:100%;overflow:hidden}
 .clver-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .clver-badge{font-family:var(--serif);font-size:13px;font-weight:700;color:#fff;background:var(--sage);border-radius:100px;padding:3px 10px}
 .clver-date{font-size:11px;color:var(--muted)}
-.clver-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
 .clver-item{font-size:13px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--bdr);line-height:1.5}
 .clver-item:last-child{border-bottom:none;padding-bottom:0}
 .clver-tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-right:5px;vertical-align:middle}
@@ -414,15 +396,15 @@ html,body{height:100%;overflow:hidden}
       <!-- 직전 섹션 -->
       <p class="seclbl" style="margin-bottom:10px">직전</p>
       <div class="sgrid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:20px">
-        <div class="sc" onclick="goTab('feed')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div class="sc" onclick="goTab('feed')">
           <div class="sr"><div class="slbl">수유</div><div class="sico f"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div></div>
           <div class="sval" id="h-fago" style="font-size:13px;white-space:nowrap">—</div><div class="ssub" id="h-fsub">기록 없음</div>
         </div>
-        <div class="sc" onclick="goTab('diaper')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div class="sc" onclick="goTab('diaper')">
           <div class="sr"><div class="slbl">기저귀</div><div class="sico d"><svg viewBox="0 0 24 24"><path d="M2 9.5L5 6h14l3 3.5v5L19 18H5l-3-3.5V9.5z"/><path d="M2 9.5h5l3 3 3-3h5"/></svg></div></div>
           <div class="sval" id="h-dago" style="font-size:13px;white-space:nowrap">—</div><div class="ssub" id="h-dsub">기록 없음</div>
         </div>
-        <div class="sc" onclick="goTab('sleep')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div class="sc" onclick="goTab('sleep')">
           <div class="sr"><div class="slbl">수면</div><div class="sico s"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div>
           <div class="sval" id="h-sago" style="font-size:13px;white-space:nowrap">—</div><div class="ssub" id="h-ssub2">기록 없음</div>
         </div>
@@ -431,15 +413,15 @@ html,body{height:100%;overflow:hidden}
       <!-- 직전 24시간 섹션 -->
       <p class="seclbl" style="margin-bottom:10px">직전 24시간</p>
       <div class="sgrid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:20px">
-        <div class="sc" onclick="goTab('sleep')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div class="sc" onclick="goTab('sleep')">
           <div class="sr"><div class="slbl">수면</div><div class="sico s"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div>
           <div class="sval" id="h-stot" style="font-size:13px;white-space:nowrap">0분</div><div class="ssub" id="h-ssub">0회</div>
         </div>
-        <div class="sc" onclick="goTab('feed')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div class="sc" onclick="goTab('feed')">
           <div class="sr"><div class="slbl">수유</div><div class="sico f"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
           <div class="sval" id="h-fcnt" style="font-size:13px;white-space:nowrap">0</div><div class="ssub" id="h-fcntsub">회</div>
         </div>
-        <div class="sc" onclick="goTab('diaper')" style="cursor:pointer;-webkit-tap-highlight-color:transparent">
+        <div class="sc" onclick="goTab('diaper')">
           <div class="sr"><div class="slbl">기저귀</div><div class="sico d"><svg viewBox="0 0 24 24"><path d="M2 9.5L5 6h14l3 3.5v5L19 18H5l-3-3.5V9.5z"/><path d="M2 9.5h5l3 3 3-3h5"/></svg></div></div>
           <div class="sval" id="h-dcnt" style="font-size:13px;white-space:nowrap">0</div><div class="ssub" id="h-dcntsub">회</div>
         </div>
@@ -447,7 +429,7 @@ html,body{height:100%;overflow:hidden}
       <!-- 체중 섹션 -->
       <p class="seclbl" style="margin-bottom:10px">최근 체중</p>
       <div class="sgrid" style="grid-template-columns:1fr;margin-bottom:20px">
-        <div class="sc" onclick="goSubTab('weight')" style="cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:space-between;padding:14px 18px">
+        <div class="sc" onclick="goSubTab('weight')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px">
           <div style="display:flex;align-items:center;gap:12px">
             <div class="sico w" style="width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></div>
             <div>
@@ -512,7 +494,7 @@ html,body{height:100%;overflow:hidden}
         <div class="fld" style="margin-bottom:12px"><div class="flbl">태어난 날짜</div><div style="overflow:hidden;border-radius:12px"><input type="date" class="finp" id="baby-birthdate" style="min-width:0;-webkit-appearance:none;appearance:none;display:block"></div></div>
         <div class="fld" style="margin-bottom:12px"><div class="flbl">태어난 시간</div><div style="overflow:hidden;border-radius:12px"><input type="time" class="finp" id="baby-birthtime" style="min-width:0;-webkit-appearance:none;appearance:none;display:block"></div></div>
         <div class="fld" style="margin-bottom:14px"><div class="flbl">출생 몸무게 (kg)</div><input type="number" class="finp" id="baby-birthweight" placeholder="예: 3.25" min="0" max="6" step="0.01"></div>
-        <button onclick="saveBabyInfo()" style="width:100%;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:12px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer">저장</button>
+        <button onclick="saveBabyInfo()" class="bpri" style="width:100%">저장</button>
       </div>
 
       <!-- 가족 코드 -->
@@ -746,7 +728,6 @@ var firebaseConfig = {
   var db = null;
   var docRef = null;
   var unsubscribe = null;
-  var isOnline = false;
   var _feedTimer = null;
   var _feedTimerId = null;
   var _sleepTimer = null;
@@ -756,7 +737,6 @@ var firebaseConfig = {
   var _editType = null; // 'feeds' | 'diapers' | 'sleeps'
   var _linkedSleepId = null;         // sleep id linked to current feed timer
   var _pendingConsumedFeedId = null; // feed id awaiting consumed amount
-  var _prevTab = 'home';             // for back-button sub-navigation
   var REQUESTS = [];                 // global request list (from Firestore)
   var unsubRequests = null;
 
@@ -767,6 +747,11 @@ var firebaseConfig = {
     if (!Array.isArray(DB.weights)) DB.weights = [];
   }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
+  function directFeedMl(startIso, endIso) {
+    if (!startIso || !endIso) return null;
+    var ms = new Date(endIso) - new Date(startIso);
+    return Math.round(Math.round(ms / 10000) * 50 / 90);
+  }
 
   // ── FIREBASE INIT ─────────────────────────────────────────
   function initFirebase() {
@@ -809,6 +794,13 @@ var firebaseConfig = {
     subscribeToData();
     subscribeRequests();
     setInterval(renderHome, 60000);
+    // 알림 초기화 (DB 로드 후)
+    setTimeout(function() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().catch(function() {});
+      }
+      setInterval(function() { updateNotifState(); }, 60000);
+    }, 1500);
   }
 
   // ── FIRESTORE REAL-TIME LISTENER ──────────────────────────
@@ -826,8 +818,7 @@ var firebaseConfig = {
         // Document doesn't exist yet — empty state
         DB = { feeds: [], diapers: [], sleeps: [], weights: [] };
       }
-      isOnline = !snapshot.metadata.fromCache;
-      updateSyncDot(isOnline ? 'online' : 'cache');
+      updateSyncDot(!snapshot.metadata.fromCache ? 'online' : 'cache');
       // restore linked sleep id from localStorage
       try {
         var lsid = localStorage.getItem('bodeum_linked_sleep');
@@ -1010,8 +1001,7 @@ var firebaseConfig = {
     var tml = tf.reduce(function(s,f){
       var famt = f.amount;
       if (famt == null && f.type==='breast' && f.subtype==='direct' && f.start && f.end) {
-        var telms = new Date(f.end) - new Date(f.start);
-        famt = Math.round(Math.round(telms/10000) * 50/90);
+        famt = directFeedMl(f.start, f.end);
       }
       return s + (f.consumedAmount != null ? f.consumedAmount : (famt || 0));
     }, 0);
@@ -1047,8 +1037,7 @@ var firebaseConfig = {
       var dur = (f.start && f.end) ? ' · ' + durStr(new Date(f.end)-new Date(f.start)) : '';
       var fAmt = f.amount;
       if (fAmt == null && f.type==='breast' && f.subtype==='direct' && f.start && f.end) {
-        var felms = new Date(f.end) - new Date(f.start);
-        fAmt = Math.round(Math.round(felms/10000) * 50/90);
+        fAmt = directFeedMl(f.start, f.end);
       }
       var famtStr = f.consumedAmount!=null && fAmt!=null ? '준비 '+fAmt+'ml / 섭취 '+f.consumedAmount+'ml'
                   : f.consumedAmount!=null ? '섭취 '+f.consumedAmount+'ml'
@@ -1103,15 +1092,14 @@ var firebaseConfig = {
         // 직수 구기록 소급 계산: amount null이지만 start/end 있으면 시간으로 계산
         var dispAmt = f.amount;
         if (dispAmt == null && f.type==='breast' && f.subtype==='direct' && f.start && f.end) {
-          var elms = new Date(f.end) - new Date(f.start);
-          dispAmt = Math.round(Math.round(elms/10000) * 50/90);
+          dispAmt = directFeedMl(f.start, f.end);
         }
         var amtStr = '';
         if (dispAmt != null && f.consumedAmount != null) amtStr = '준비 '+dispAmt+'ml / 섭취 '+f.consumedAmount+'ml';
         else if (dispAmt != null) amtStr = dispAmt+'ml';
         else if (f.consumedAmount != null) amtStr = '섭취 '+f.consumedAmount+'ml';
         var details = [amtStr, durTxt, f.side?(TS[f.side]||''):'', f.note||''].filter(Boolean).join(' · ');
-        return '<div class="ec" onclick="openEdit(\'feeds\',\''+f.id+'\')" style="cursor:pointer;animation:item-in .25s cubic-bezier(.4,0,.2,1) both"><div class="edot f"></div><div class="emain"><div class="epri">'+typeLbl+'</div><div class="esec">'+(timeRange+(details?' · '+details:''))+'</div></div><div class="etime">'+fmtFull(t)+'<br><span class="eago">'+elapsedStr(t)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'feeds\',\''+f.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+        return '<div class="ec" onclick="openEdit(\'feeds\',\''+f.id+'\')" style="animation:item-in .25s cubic-bezier(.4,0,.2,1) both"><div class="edot f"></div><div class="emain"><div class="epri">'+typeLbl+'</div><div class="esec">'+(timeRange+(details?' · '+details:''))+'</div></div><div class="etime">'+fmtFull(t)+'<br><span class="eago">'+elapsedStr(t)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'feeds\',\''+f.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
   }
@@ -1125,7 +1113,7 @@ var firebaseConfig = {
     el.innerHTML = groupByDay(sorted, function(d){ return d.time; }).map(function(g2) {
       return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(d) {
         var sub = [d.color?TC[d.color]:'', d.note||''].filter(Boolean).join(' · ');
-        return '<div class="ec" onclick="openEdit(\'diapers\',\''+d.id+'\')" style="cursor:pointer;animation:item-in .25s cubic-bezier(.4,0,.2,1) both"><div class="edot d"></div><div class="emain"><div class="epri">'+(TD[d.type]||'기저귀')+'</div><div class="esec">'+(sub||'&nbsp;')+'</div></div><div class="etime">'+fmtFull(d.time)+'<br><span class="eago">'+elapsedStr(d.time)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'diapers\',\''+d.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+        return '<div class="ec" onclick="openEdit(\'diapers\',\''+d.id+'\')" style="animation:item-in .25s cubic-bezier(.4,0,.2,1) both"><div class="edot d"></div><div class="emain"><div class="epri">'+(TD[d.type]||'기저귀')+'</div><div class="esec">'+(sub||'&nbsp;')+'</div></div><div class="etime">'+fmtFull(d.time)+'<br><span class="eago">'+elapsedStr(d.time)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'diapers\',\''+d.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
   }
@@ -1155,7 +1143,7 @@ var firebaseConfig = {
     var PL = { crib:'침대', arms:'품', cushion:'원형쿠션' };
     el.innerHTML = groupByDay(done, function(s){ return s.start; }).map(function(g2) {
       return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(s) {
-        return '<div class="ec" onclick="openEdit(\'sleeps\',\''+s.id+'\')" style="cursor:pointer;animation:item-in .25s cubic-bezier(.4,0,.2,1) both"><div class="edot s"></div><div class="emain"><div class="epri">'+durStr(new Date(s.end)-new Date(s.start))+'</div><div class="esec">'+fmt(s.start)+' → '+fmt(s.end)+(s.place?' · '+(PL[s.place]||''):'')+'</div></div><div class="etime">'+fmtFull(s.start)+'<br><span class="eago">'+elapsedStr(s.start)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'sleeps\',\''+s.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+        return '<div class="ec" onclick="openEdit(\'sleeps\',\''+s.id+'\')" style="animation:item-in .25s cubic-bezier(.4,0,.2,1) both"><div class="edot s"></div><div class="emain"><div class="epri">'+durStr(new Date(s.end)-new Date(s.start))+'</div><div class="esec">'+fmt(s.start)+' → '+fmt(s.end)+(s.place?' · '+(PL[s.place]||''):'')+'</div></div><div class="etime">'+fmtFull(s.start)+'<br><span class="eago">'+elapsedStr(s.start)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'sleeps\',\''+s.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
   }
@@ -1302,7 +1290,7 @@ var firebaseConfig = {
     var desc = asc.slice().reverse();
     el.innerHTML = groupByDay(desc, function(w){ return w.time; }).map(function(g2) {
       return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(w) {
-        return '<div class="ec" onclick="openEditWeight(\''+w.id+'\')" style="cursor:pointer"><div class="edot w"></div><div class="emain"><div class="epri">'+w.kg.toFixed(2)+' kg</div></div><div class="etime">'+fmtFull(w.time)+'</div><button class="edel" onclick="event.stopPropagation();delWeight(\''+w.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+        return '<div class="ec" onclick="openEditWeight(\''+w.id+'\')"><div class="edot w"></div><div class="emain"><div class="epri">'+w.kg.toFixed(2)+' kg</div></div><div class="etime">'+fmtFull(w.time)+'</div><button class="edel" onclick="event.stopPropagation();delWeight(\''+w.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
   }
@@ -1367,7 +1355,7 @@ var firebaseConfig = {
   function sendToSW(lastFeedTime, activeFeedStart) {
     if (!('serviceWorker' in navigator)) return;
     navigator.serviceWorker.ready.then(function(reg) {
-      if (reg.active) reg.active.postMessage({ type: 'FEED_UPDATE', lastFeedTime: lastFeedTime, activeFeedStart: activeFeedStart });
+      if (reg.active) reg.active.postMessage({ type: 'FEED_UPDATE', lastFeedTime: lastFeedTime, activeFeedStart: activeFeedStart, babyName: Baby.name||'아이' });
     }).catch(function() {});
   }
   function updateNotifState() {
@@ -1389,7 +1377,7 @@ var firebaseConfig = {
       var key = 'hunger_' + lastFeedTime;
       if (elapsed >= 2.5 * 3600 * 1000 && elapsed < 4 * 3600 * 1000 && _fgHungerFired !== key) {
         _fgHungerFired = key;
-        new Notification('보듬 🌿', { body: '이엘이 배고플시간, 맘마 준비해주세요.', tag: 'hunger' });
+        new Notification('보듬 🌿', { body: (Baby.name||'아이')+'가 배고플시간, 맘마 준비해주세요.', tag: 'hunger' });
       }
     }
     /* 수유 타이머 30분 알림 */
@@ -1402,15 +1390,6 @@ var firebaseConfig = {
       }
     }
   }
-  /* 1분마다 포그라운드 체크 */
-  setInterval(function() { updateNotifState(); }, 60000);
-  /* 알림 권한 요청 (앱 첫 로드 후 3초 뒤) */
-  setTimeout(function() {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission().catch(function() {});
-    }
-  }, 3000);
-
   // ── FEED TIMER ────────────────────────────────────────────
   function findActiveFeed() {
     for (var i = 0; i < DB.feeds.length; i++) if (DB.feeds[i].start && !DB.feeds[i].end) return DB.feeds[i];
@@ -1467,11 +1446,10 @@ var firebaseConfig = {
     var a = findActiveFeed();
     if (!a) return;
     var endTime = new Date().toISOString();
-    var elapsed = Date.now() - new Date(a.start).getTime();
     var isDirect = a.type === 'breast' && a.subtype === 'direct';
     if (isDirect) {
       // 15분=50ml, 10초 단위
-      a.amount = Math.round(Math.round(elapsed/10000) * 50/90);
+      a.amount = directFeedMl(a.start, endTime);
     }
     a.end = endTime;
     stopFeedTimer();
@@ -1506,9 +1484,8 @@ var firebaseConfig = {
     if (_linkedSleepId === a.id) {
       var af = findActiveFeed();
       if (af) {
-        var elapsed = Date.now() - new Date(af.start).getTime();
         var isDirect = af.type === 'breast' && af.subtype === 'direct';
-        if (isDirect) af.amount = Math.round(Math.round(elapsed/10000) * 50/90);
+        if (isDirect) af.amount = directFeedMl(af.start, endTime);
         af.end = endTime;
         stopFeedTimer();
         _linkedSleepId = null;
@@ -1643,15 +1620,12 @@ var firebaseConfig = {
   };
 
   window.goSubTab = function(sub) {
-    var cur = document.querySelector('.panel.active');
-    _prevTab = cur ? cur.id.replace('panel-','') : 'settings';
     goTab(sub, 'forward');
     g('backBtn').onclick = function(){ goTab('home','back'); };
   };
 
   // ── 왼쪽 엣지 스와이프 → 뒤로가기 ───────────────────────
   (function() {
-    var TAB_ORDER = ['home','feed','diaper','sleep','weight','settings'];
     var _swipeStartX = 0, _swipeStartY = 0, _swipeActive = false;
     document.addEventListener('touchstart', function(e) {
       var t = e.touches[0];
@@ -1713,8 +1687,7 @@ var firebaseConfig = {
   function toLocalISO(iso) {
     if (!iso) return '';
     var d = new Date(iso);
-    var pad = function(n){ return n < 10 ? '0'+n : ''+n; };
-    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+    return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+'T'+p2(d.getHours())+':'+p2(d.getMinutes());
   }
 
   window.openM = function(type) {
@@ -1765,8 +1738,7 @@ var firebaseConfig = {
       rSeg('seg-fs','f-side', rec.side||'left');
       var preAmt = rec.amount;
       if (preAmt == null && rec.type==='breast' && rec.subtype==='direct' && rec.start && rec.end) {
-        var preElms = new Date(rec.end) - new Date(rec.start);
-        preAmt = Math.round(Math.round(preElms/10000) * 50/90) || null;
+        preAmt = directFeedMl(rec.start, rec.end) || null;
       }
       g('f-amount').value = preAmt != null ? preAmt : '';
       g('f-consumed').value = rec.consumedAmount != null ? rec.consumedAmount : '';
