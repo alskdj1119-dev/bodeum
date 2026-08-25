@@ -143,6 +143,71 @@ html,body{height:100%;overflow:hidden}
   transition:transform .28s cubic-bezier(.4,0,.2,1), opacity .22s ease;
 }
 
+/* ── 전역 버튼 탭 피드백 ── */
+.nb{transition:color .15s, transform .12s cubic-bezier(.34,1.56,.64,1)}
+.nb:active{transform:scale(.82)}
+.nb.tab-bounce{animation:tab-bounce .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes tab-bounce{0%{transform:scale(1)}40%{transform:scale(.75)}100%{transform:scale(1)}}
+
+.bpri{transition:transform .12s cubic-bezier(.34,1.56,.64,1), opacity .15s, background .2s}
+.bpri:active{transform:scale(.96)}
+.bpri.success{background:var(--cw,#5E9E8D) !important;transition:background .25s}
+.bcan{transition:transform .12s, opacity .15s}
+.bcan:active{transform:scale(.96);opacity:.7}
+
+.addbtn{transition:transform .12s cubic-bezier(.34,1.56,.64,1), opacity .15s}
+.addbtn:active{transform:scale(.9)}
+
+.backbtn{transition:transform .12s, opacity .15s}
+.backbtn:active{transform:translateX(-3px);opacity:.6}
+
+/* ── 카드 탭 피드백 ── */
+.sc{transition:transform .12s cubic-bezier(.34,1.56,.64,1), box-shadow .15s}
+.sc:active{transform:scale(.97)}
+.ec{transition:transform .12s cubic-bezier(.34,1.56,.64,1), box-shadow .15s}
+.ec:active{transform:scale(.98)}
+.qbtn{transition:transform .12s cubic-bezier(.34,1.56,.64,1), opacity .15s, box-shadow .15s}
+
+/* ── 카드/항목 진입 애니메이션 ── */
+@keyframes card-in{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes item-in{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+.card-anim{animation:card-in .3s cubic-bezier(.4,0,.2,1) both}
+.item-anim{animation:item-in .25s cubic-bezier(.4,0,.2,1) both}
+
+/* ── 모달 오버레이 페이드 ── */
+.mbg{transition:background .22s}
+.mbg.open .msheet{animation:sheet-up .3s cubic-bezier(.32,1,.32,1) both}
+@keyframes sheet-up{from{transform:translateY(105%);opacity:.6}to{transform:translateY(0);opacity:1}}
+
+/* ── 모달 닫힘 ── */
+.mbg.closing .msheet{animation:sheet-down .22s cubic-bezier(.4,0,.6,1) both}
+@keyframes sheet-down{from{transform:translateY(0);opacity:1}to{transform:translateY(105%);opacity:0}}
+
+/* ── 토스트 개선 ── */
+.toast{transition:opacity .22s, transform .25s cubic-bezier(.32,1,.32,1)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── 수유/수면 라이브 배너 진입 ── */
+.slive{transition:opacity .3s, transform .3s cubic-bezier(.4,0,.2,1)}
+.slive.banner-in{animation:banner-in .35s cubic-bezier(.32,1,.32,1) both}
+@keyframes banner-in{from{opacity:0;transform:translateY(-10px) scale(.97)}to{opacity:1;transform:none}}
+
+/* ── 체중 차트 선 그리기 ── */
+.chart-line-anim{stroke-dashoffset:0;animation:draw-line .8s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes draw-line{from{stroke-dashoffset:var(--line-len,1000)}to{stroke-dashoffset:0}}
+
+/* ── 숫자 롤 ── */
+@keyframes num-roll{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.num-roll{display:inline-block;animation:num-roll .3s cubic-bezier(.34,1.56,.64,1) both}
+
+/* ── 삭제 버튼 피드백 ── */
+.edel{transition:transform .12s, opacity .15s, background .15s}
+.edel:active{transform:scale(.85);opacity:.7}
+
+/* ── sbtn(세그먼트) 탭 ── */
+.sbtn{transition:all .18s cubic-bezier(.4,0,.2,1)}
+.sbtn.on{transform:none}
+
 .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surf);border-top:1px solid var(--bdr);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
 .backbtn{background:none;border:none;padding:4px 8px 4px 0;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:4px;font-family:var(--sans);font-size:14px;font-weight:500;-webkit-tap-highlight-color:transparent}
 .backbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -223,14 +288,13 @@ html,body{height:100%;overflow:hidden}
 .empty-lbl{font-size:14px}
 
 /* ── TOAST ───────────────────────────────────────────────── */
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);font-family:var(--sans);font-size:13px;padding:10px 18px;border-radius:100px;z-index:300;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 40px)}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(28px);background:var(--ink);color:var(--bg);font-family:var(--sans);font-size:13px;padding:10px 18px;border-radius:100px;z-index:300;opacity:0;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 40px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── MODAL ───────────────────────────────────────────────── */
 .mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:200;align-items:flex-end;justify-content:center}
-.mbg.open{display:flex}
-.msheet{width:100%;max-width:430px;background:var(--surf);border-radius:24px 24px 0 0;padding-bottom:max(env(safe-area-inset-bottom,0px),20px);animation:slideup .22s cubic-bezier(.32,1,.32,1)}
-@keyframes slideup{from{transform:translateY(110%)}to{transform:translateY(0)}}
+.mbg.open,.mbg.closing{display:flex}
+.msheet{width:100%;max-width:430px;background:var(--surf);border-radius:24px 24px 0 0;padding-bottom:max(env(safe-area-inset-bottom,0px),20px)}
 .mhandle{width:38px;height:4px;background:var(--bdr);border-radius:2px;margin:12px auto 18px}
 .mtitle{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--ink);padding:0 20px 14px;border-bottom:1px solid var(--bdr)}
 .mbody{padding:18px 20px 4px}
@@ -243,8 +307,7 @@ html,body{height:100%;overflow:hidden}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
 .sbtn{flex:1;min-width:60px;padding:9px 6px;border:1.5px solid var(--bdr);border-radius:10px;background:var(--bg);font-family:var(--sans);font-size:13px;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
 .sbtn.on{background:var(--sage);border-color:var(--sage);color:#fff;font-weight:600}
-.bpri{flex:1;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:14px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s}
-.bpri:active{opacity:.8}
+.bpri{flex:1;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:14px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;transition:transform .12s cubic-bezier(.34,1.56,.64,1), opacity .15s, background .2s}
 .bcan{background:var(--surf2);color:var(--muted);border:none;border-radius:100px;padding:14px 20px;font-family:var(--sans);font-size:15px;cursor:pointer}
 ::-webkit-scrollbar{width:0}
 
@@ -827,9 +890,18 @@ var firebaseConfig = {
   // ── TOAST ─────────────────────────────────────────────────
   function toast(msg) {
     var el = g('toast'); if (!el) return;
-    el.textContent = msg; el.classList.add('show');
+    el.classList.remove('show');
+    void el.offsetWidth; // reflow to restart animation
+    el.textContent = msg;
+    el.classList.add('show');
     clearTimeout(_toastTO);
     _toastTO = setTimeout(function() { el.classList.remove('show'); }, 2800);
+  }
+
+  function flashSave(btn) {
+    if (!btn) return;
+    btn.classList.add('success');
+    setTimeout(function() { btn.classList.remove('success'); }, 600);
   }
 
   // ── TIME HELPERS ──────────────────────────────────────────
@@ -989,8 +1061,8 @@ var firebaseConfig = {
 
     var el = g('recentList');
     if (!all.length) { el.innerHTML = '<div class="empty"><div class="empty-lbl" style="font-size:13px">아직 기록이 없어요 🌿</div></div>'; return; }
-    el.innerHTML = all.slice(0,10).map(function(e) {
-      return '<div class="tlitem"><div class="tldot '+e.t+'"></div><div class="tlinf"><div class="tltype">'+e.label+'</div>'+(e.sub?'<div class="tldet">'+e.sub+'</div>':'')+'</div><div class="tltime">'+fmtFull(e.time)+'<br><span class="eago">'+elapsedStr(e.time)+'</span></div></div>';
+    el.innerHTML = all.slice(0,10).map(function(e, i) {
+      return '<div class="tlitem" style="animation:card-in .3s cubic-bezier(.4,0,.2,1) '+(i*40)+'ms both"><div class="tldot '+e.t+'"></div><div class="tlinf"><div class="tltype">'+e.label+'</div>'+(e.sub?'<div class="tldet">'+e.sub+'</div>':'')+'</div><div class="tltime">'+fmtFull(e.time)+'<br><span class="eago">'+elapsedStr(e.time)+'</span></div></div>';
     }).join('');
   }
 
@@ -1001,7 +1073,14 @@ var firebaseConfig = {
 
     var af = findActiveFeed();
     var fb = g('feedLiveBanner');
-    fb.style.display = af ? 'flex' : 'none';
+    if (af && fb.style.display === 'none') {
+      fb.style.display = 'flex';
+      fb.classList.remove('banner-in');
+      void fb.offsetWidth;
+      fb.classList.add('banner-in');
+    } else if (!af) {
+      fb.style.display = 'none';
+    }
     if (af) {
       var flbl = fb.querySelector('.slivelbl');
       if (flbl) flbl.textContent = _linkedSleepId ? '수유+수면 중' : '수유 중';
@@ -1032,7 +1111,7 @@ var firebaseConfig = {
         else if (dispAmt != null) amtStr = dispAmt+'ml';
         else if (f.consumedAmount != null) amtStr = '섭취 '+f.consumedAmount+'ml';
         var details = [amtStr, durTxt, f.side?(TS[f.side]||''):'', f.note||''].filter(Boolean).join(' · ');
-        return '<div class="ec" onclick="openEdit(\'feeds\',\''+f.id+'\')" style="cursor:pointer"><div class="edot f"></div><div class="emain"><div class="epri">'+typeLbl+'</div><div class="esec">'+(timeRange+(details?' · '+details:''))+'</div></div><div class="etime">'+fmtFull(t)+'<br><span class="eago">'+elapsedStr(t)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'feeds\',\''+f.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+        return '<div class="ec" onclick="openEdit(\'feeds\',\''+f.id+'\')" style="cursor:pointer;animation:item-in .25s cubic-bezier(.4,0,.2,1) both"><div class="edot f"></div><div class="emain"><div class="epri">'+typeLbl+'</div><div class="esec">'+(timeRange+(details?' · '+details:''))+'</div></div><div class="etime">'+fmtFull(t)+'<br><span class="eago">'+elapsedStr(t)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'feeds\',\''+f.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
   }
@@ -1046,7 +1125,7 @@ var firebaseConfig = {
     el.innerHTML = groupByDay(sorted, function(d){ return d.time; }).map(function(g2) {
       return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(d) {
         var sub = [d.color?TC[d.color]:'', d.note||''].filter(Boolean).join(' · ');
-        return '<div class="ec" onclick="openEdit(\'diapers\',\''+d.id+'\')" style="cursor:pointer"><div class="edot d"></div><div class="emain"><div class="epri">'+(TD[d.type]||'기저귀')+'</div><div class="esec">'+(sub||'&nbsp;')+'</div></div><div class="etime">'+fmtFull(d.time)+'<br><span class="eago">'+elapsedStr(d.time)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'diapers\',\''+d.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+        return '<div class="ec" onclick="openEdit(\'diapers\',\''+d.id+'\')" style="cursor:pointer;animation:item-in .25s cubic-bezier(.4,0,.2,1) both"><div class="edot d"></div><div class="emain"><div class="epri">'+(TD[d.type]||'기저귀')+'</div><div class="esec">'+(sub||'&nbsp;')+'</div></div><div class="etime">'+fmtFull(d.time)+'<br><span class="eago">'+elapsedStr(d.time)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'diapers\',\''+d.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
   }
@@ -1054,7 +1133,14 @@ var firebaseConfig = {
   function renderSleeps() {
     var as = findActiveSleep();
     var slb = g('sleepLiveBanner');
-    slb.style.display = as ? 'flex' : 'none';
+    if (as && slb.style.display === 'none') {
+      slb.style.display = 'flex';
+      slb.classList.remove('banner-in');
+      void slb.offsetWidth;
+      slb.classList.add('banner-in');
+    } else if (!as) {
+      slb.style.display = 'none';
+    }
     if (as) {
       var lbl = g('sleepLiveLbl');
       if (lbl) lbl.textContent = (_linkedSleepId === as.id) ? '수면+수유 중' : '수면 중';
@@ -1069,7 +1155,7 @@ var firebaseConfig = {
     var PL = { crib:'침대', arms:'품', cushion:'원형쿠션' };
     el.innerHTML = groupByDay(done, function(s){ return s.start; }).map(function(g2) {
       return '<div class="daygrp"><div class="daylbl">'+g2[0]+'</div>'+g2[1].map(function(s) {
-        return '<div class="ec" onclick="openEdit(\'sleeps\',\''+s.id+'\')" style="cursor:pointer"><div class="edot s"></div><div class="emain"><div class="epri">'+durStr(new Date(s.end)-new Date(s.start))+'</div><div class="esec">'+fmt(s.start)+' → '+fmt(s.end)+(s.place?' · '+(PL[s.place]||''):'')+'</div></div><div class="etime">'+fmtFull(s.start)+'<br><span class="eago">'+elapsedStr(s.start)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'sleeps\',\''+s.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
+        return '<div class="ec" onclick="openEdit(\'sleeps\',\''+s.id+'\')" style="cursor:pointer;animation:item-in .25s cubic-bezier(.4,0,.2,1) both"><div class="edot s"></div><div class="emain"><div class="epri">'+durStr(new Date(s.end)-new Date(s.start))+'</div><div class="esec">'+fmt(s.start)+' → '+fmt(s.end)+(s.place?' · '+(PL[s.place]||''):'')+'</div></div><div class="etime">'+fmtFull(s.start)+'<br><span class="eago">'+elapsedStr(s.start)+'</span></div><button class="edel" onclick="event.stopPropagation();delE(\'sleeps\',\''+s.id+'\')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>';
       }).join('')+'</div>';
     }).join('');
   }
@@ -1135,7 +1221,8 @@ var firebaseConfig = {
     // 면적 채우기
     var ptStr = allDays.map(function(d,i){ return xp(i)+','+yp(d.kg); }).join(' ');
     var area = '<path d="M'+xp(0)+','+(mt+cH)+' L'+ptStr.split(' ').join(' L')+' L'+xp(n-1)+','+(mt+cH)+' Z" fill="var(--cf)" opacity="0.09"/>';
-    var line = '<polyline points="'+ptStr+'" fill="none" stroke="var(--cf)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+    var lineLen = 1000; // approximate, will be set via JS after insert
+    var line = '<polyline id="wc-line" points="'+ptStr+'" fill="none" stroke="var(--cf)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" style="stroke-dasharray:'+lineLen+';stroke-dashoffset:'+lineLen+'"/>';
 
     // 점 + 체중 라벨 + 날짜 + 증가량
     var dots = '', wlbls = '', dlbls = '', glbls = '';
@@ -1194,6 +1281,19 @@ var firebaseConfig = {
       if (allDays.length >= 2) {
         chartWrap.style.display = 'block';
         chartWrap.innerHTML = buildWeightChart(allDays, gains, avg7);
+        // 차트 선 그리기 애니메이션
+        requestAnimationFrame(function() {
+          var ln = chartWrap.querySelector('#wc-line');
+          if (ln) {
+            var len = ln.getTotalLength ? Math.ceil(ln.getTotalLength()) : 800;
+            ln.style.strokeDasharray = len;
+            ln.style.strokeDashoffset = len;
+            requestAnimationFrame(function() {
+              ln.style.transition = 'stroke-dashoffset 0.9s cubic-bezier(.4,0,.2,1)';
+              ln.style.strokeDashoffset = '0';
+            });
+          }
+        });
       } else {
         chartWrap.style.display = 'none';
         chartWrap.innerHTML = '';
@@ -1238,11 +1338,13 @@ var firebaseConfig = {
     var rec = { time: new Date(tv).toISOString(), kg: Math.round(kg * 100) / 100 };
     if (_editId) {
       DB.weights = (DB.weights||[]).map(function(w){ return w.id===_editId ? Object.assign({},w,rec) : w; });
-      closeM('weight'); saveDB().then(renderAll); return;
+      flashSave(g('modal-weight').querySelector('.bpri'));
+      setTimeout(function() { closeM('weight'); saveDB().then(renderAll); }, 180); return;
     }
     if (!DB.weights) DB.weights = [];
     DB.weights.push(Object.assign({ id: uid() }, rec));
-    closeM('weight'); saveDB().then(renderAll);
+    flashSave(g('modal-weight').querySelector('.bpri'));
+    setTimeout(function() { closeM('weight'); saveDB().then(renderAll); }, 180);
   };
   window.delWeight = function(id) {
     DB.weights = (DB.weights||[]).filter(function(w){ return w.id !== id; });
@@ -1447,6 +1549,19 @@ var firebaseConfig = {
 
   var _isAnimating = false;
 
+  /* 탭 바운스 헬퍼 */
+  function bounceTab(tab) {
+    var btn = g('nav-'+tab);
+    if (!btn) return;
+    btn.classList.remove('tab-bounce');
+    void btn.offsetWidth;
+    btn.classList.add('tab-bounce');
+    btn.addEventListener('animationend', function handler() {
+      btn.classList.remove('tab-bounce');
+      btn.removeEventListener('animationend', handler);
+    });
+  }
+
   // dir: 'forward' (오른쪽에서 슬라이드인) | 'back' (왼쪽에서 슬라이드인, 현재는 오른쪽으로 퇴장)
   window.goTab = function(tab, dir) {
     if (_isAnimating) return;
@@ -1460,7 +1575,7 @@ var firebaseConfig = {
     // 즉시 상태 업데이트 (nav, header)
     document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('active'); });
     var navBtn = g('nav-'+tab);
-    if (navBtn) navBtn.classList.add('active');
+    if (navBtn) { navBtn.classList.add('active'); bounceTab(tab); }
     var isHome = (tab === 'home');
     var bb = g('backBtn');
     bb.style.display = isHome ? 'none' : '';
@@ -1628,7 +1743,15 @@ var firebaseConfig = {
     }
     g('modal-'+type).classList.add('open');
   };
-  window.closeM = function(type) { _editId = null; _editType = null; g('modal-'+type).classList.remove('open'); };
+  window.closeM = function(type) {
+    _editId = null; _editType = null;
+    var el = g('modal-'+type);
+    if (!el) return;
+    el.classList.add('closing');
+    setTimeout(function() {
+      el.classList.remove('open','closing');
+    }, 200);
+  };
 
   window.openEdit = function(collection, id) {
     var rec = null;
@@ -1754,10 +1877,12 @@ var firebaseConfig = {
     var rec = { time:new Date(t).toISOString(), type:g('d-type').value, color:g('d-color').value||null, note:g('d-note').value.trim()||null };
     if (_editId) {
       DB.diapers = DB.diapers.map(function(d){ return d.id === _editId ? Object.assign({}, d, rec) : d; });
-      closeM('diaper'); saveDB().then(renderAll); return;
+      flashSave(g('modal-diaper').querySelector('.bpri'));
+      setTimeout(function() { closeM('diaper'); saveDB().then(renderAll); }, 180); return;
     }
     DB.diapers.push(Object.assign({ id:uid() }, rec));
-    closeM('diaper'); saveDB().then(renderAll);
+    flashSave(g('modal-diaper').querySelector('.bpri'));
+    setTimeout(function() { closeM('diaper'); saveDB().then(renderAll); }, 180);
   };
 
   window.saveSleep = function() {
@@ -1769,7 +1894,8 @@ var firebaseConfig = {
     var rec = { start:startISO, end:ev ? new Date(ev).toISOString() : null, place:g('s-place').value||null };
     if (_editId) {
       DB.sleeps = DB.sleeps.map(function(s){ return s.id === _editId ? Object.assign({}, s, rec) : s; });
-      closeM('sleep'); saveDB().then(renderAll); return;
+      flashSave(g('modal-sleep').querySelector('.bpri'));
+      setTimeout(function() { closeM('sleep'); saveDB().then(renderAll); }, 180); return;
     }
     if (!ev) {
       // timer mode — close any existing active sleep first
@@ -1778,11 +1904,14 @@ var firebaseConfig = {
     }
     var newSleep = Object.assign({ id:uid() }, rec);
     DB.sleeps.push(newSleep);
-    closeM('sleep');
-    saveDB().then(function(){
-      if (!ev) startSleepTimer(newSleep);
-      renderAll();
-    });
+    flashSave(g('modal-sleep').querySelector('.bpri'));
+    setTimeout(function() {
+      closeM('sleep');
+      saveDB().then(function(){
+        if (!ev) startSleepTimer(newSleep);
+        renderAll();
+      });
+    }, 180);
   };
 
   // ── REQUESTS ──────────────────────────────────────────────
