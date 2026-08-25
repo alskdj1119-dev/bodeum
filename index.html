@@ -100,9 +100,48 @@ body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--san
 
 html,body{height:100%;overflow:hidden}
 #app{height:100vh;overflow:hidden}
-.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:84px}
-.panel{display:none;padding:20px}
-.panel.active{display:block}
+.content{flex:1;overflow:hidden;-webkit-overflow-scrolling:touch;padding-bottom:0;position:relative}
+/* ── 패널 슬라이드 애니메이션 ── */
+.panel{
+  display:block;
+  padding:20px;
+  padding-bottom:100px;
+  position:absolute;
+  top:0;left:0;right:0;
+  bottom:0;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  transform:translateX(100%);
+  opacity:0;
+  pointer-events:none;
+  will-change:transform,opacity;
+}
+.panel.active{
+  transform:translateX(0);
+  opacity:1;
+  pointer-events:auto;
+}
+.panel.slide-out-right{
+  transform:translateX(100%);
+  opacity:0;
+  pointer-events:none;
+}
+.panel.slide-out-left{
+  transform:translateX(-30%);
+  opacity:0;
+  pointer-events:none;
+}
+.panel.slide-in-from-left{
+  transform:translateX(-30%);
+  opacity:0;
+}
+.panel.slide-in-from-right{
+  transform:translateX(100%);
+  opacity:0;
+}
+.panel.animating{
+  transition:transform .28s cubic-bezier(.4,0,.2,1), opacity .22s ease;
+}
 
 .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surf);border-top:1px solid var(--bdr);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
 .backbtn{background:none;border:none;padding:4px 8px 4px 0;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:4px;font-family:var(--sans);font-size:14px;font-weight:500;-webkit-tap-highlight-color:transparent}
@@ -1406,26 +1445,34 @@ var firebaseConfig = {
 
   var SUB_PANELS = ['changelog','requests']; // panels without nav tabs
 
-  window.goTab = function(tab) {
-    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  var _isAnimating = false;
+
+  // dir: 'forward' (오른쪽에서 슬라이드인) | 'back' (왼쪽에서 슬라이드인, 현재는 오른쪽으로 퇴장)
+  window.goTab = function(tab, dir) {
+    if (_isAnimating) return;
+    var cur = document.querySelector('.panel.active');
+    var next = g('panel-'+tab);
+    if (!next || (cur && cur === next)) return;
+
+    // 방향 기본값: 홈으로 가면 'back', 아니면 'forward'
+    if (dir === undefined) dir = (tab === 'home') ? 'back' : 'forward';
+
+    // 즉시 상태 업데이트 (nav, header)
     document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('active'); });
-    var panel = g('panel-'+tab);
-    if (!panel) return;
-    panel.classList.add('active');
     var navBtn = g('nav-'+tab);
     if (navBtn) navBtn.classList.add('active');
     var isHome = (tab === 'home');
     var bb = g('backBtn');
     bb.style.display = isHome ? 'none' : '';
-    // 항상 뒤로가기를 홈으로 리셋 (goSubTab이 필요 시 덮어씀)
-    bb.onclick = function(){ goTab('home'); };
+    bb.onclick = function(){ goTab('home','back'); };
     g('hdrLogo').style.display = isHome ? '' : 'none';
     g('hdrAppname').style.display = isHome ? '' : 'none';
+
+    // 데이터 준비 (렌더는 애니메이션 전에)
     if (tab === 'settings') {
       var code = '';
       try { code = localStorage.getItem('bodeum_family_code') || ''; } catch(_) {}
       if (g('settingsCode')) g('settingsCode').textContent = code || '—';
-      // 아이 정보 필드 채우기
       if (g('baby-name')) g('baby-name').value = Baby.name || '';
       if (g('baby-prenatal')) g('baby-prenatal').value = Baby.prenatal || '';
       if (g('baby-birthdate')) g('baby-birthdate').value = Baby.birthDate || '';
@@ -1436,14 +1483,55 @@ var firebaseConfig = {
     if (tab === 'weight') renderWeights();
     if (!isHome) renderAll();
     setDate();
+
+    // 현재 패널 없으면 그냥 표시
+    if (!cur) {
+      next.classList.add('active');
+      return;
+    }
+
+    _isAnimating = true;
+
+    // 새 패널 초기 위치 세팅 (transition 없이)
+    next.classList.remove('active','animating','slide-out-right','slide-out-left','slide-in-from-left','slide-in-from-right');
+    if (dir === 'back') {
+      next.classList.add('slide-in-from-left');  // 홈은 왼쪽에서 온다
+    } else {
+      next.classList.add('slide-in-from-right'); // 앞으로 가면 오른쪽에서 온다
+    }
+
+    // 강제 리플로우 → transition 시작
+    next.offsetWidth;
+
+    next.classList.add('animating');
+    cur.classList.add('animating');
+
+    // 현재 패널 퇴장
+    cur.classList.remove('active');
+    if (dir === 'back') {
+      cur.classList.add('slide-out-right'); // 현재는 오른쪽으로 나간다
+    } else {
+      cur.classList.add('slide-out-left');  // 현재는 왼쪽으로 나간다
+    }
+
+    // 새 패널 진입
+    next.classList.remove('slide-in-from-left','slide-in-from-right');
+    next.classList.add('active');
+
+    // 트랜지션 끝나면 정리
+    var DURATION = 300;
+    setTimeout(function() {
+      cur.classList.remove('animating','slide-out-right','slide-out-left');
+      next.classList.remove('animating');
+      _isAnimating = false;
+    }, DURATION);
   };
 
   window.goSubTab = function(sub) {
     var cur = document.querySelector('.panel.active');
     _prevTab = cur ? cur.id.replace('panel-','') : 'settings';
-    goTab(sub);
-    // goTab이 홈으로 리셋한 onclick을 서브탭 출처로 덮어씌움
-    g('backBtn').onclick = function(){ goTab(_prevTab); };
+    goTab(sub, 'forward');
+    g('backBtn').onclick = function(){ goTab('home','back'); };
   };
 
   // ── 왼쪽 엣지 스와이프 → 뒤로가기 ───────────────────────
@@ -1467,14 +1555,9 @@ var firebaseConfig = {
         var cur = document.querySelector('.panel.active');
         if (!cur) return;
         var curTab = cur.id.replace('panel-','');
-        var bb = g('backBtn');
-        if (bb && bb.style.display !== 'none') {
-          // 서브탭(changelog, requests 등)이면 backBtn 동작
-          bb.click();
-        } else {
-          // 메인탭이면 왼쪽 탭으로 이동
-          var idx = TAB_ORDER.indexOf(curTab);
-          if (idx > 0) goTab(TAB_ORDER[idx - 1]);
+        if (curTab !== 'home') {
+          // 항상 홈으로 뒤로가기
+          goTab('home', 'back');
         }
       }
       _swipeActive = false;
