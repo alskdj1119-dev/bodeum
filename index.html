@@ -509,8 +509,8 @@ html,body{height:100%;overflow:hidden}
       <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:20px">
         <div class="fld" style="margin-bottom:12px"><div class="flbl">아이 이름</div><input type="text" class="finp" id="baby-name" placeholder="예: 김이엘"></div>
         <div class="fld" style="margin-bottom:12px"><div class="flbl">태명</div><input type="text" class="finp" id="baby-prenatal" placeholder="예: 콩순이"></div>
-        <div class="fld" style="margin-bottom:12px"><div class="flbl">태어난 날짜</div><input type="date" class="finp" id="baby-birthdate"></div>
-        <div class="fld" style="margin-bottom:12px"><div class="flbl">태어난 시간</div><input type="time" class="finp" id="baby-birthtime"></div>
+        <div class="fld" style="margin-bottom:12px"><div class="flbl">태어난 날짜</div><div style="overflow:hidden;border-radius:12px"><input type="date" class="finp" id="baby-birthdate" style="min-width:0;-webkit-appearance:none;appearance:none;display:block"></div></div>
+        <div class="fld" style="margin-bottom:12px"><div class="flbl">태어난 시간</div><div style="overflow:hidden;border-radius:12px"><input type="time" class="finp" id="baby-birthtime" style="min-width:0;-webkit-appearance:none;appearance:none;display:block"></div></div>
         <div class="fld" style="margin-bottom:14px"><div class="flbl">출생 몸무게 (kg)</div><input type="number" class="finp" id="baby-birthweight" placeholder="예: 3.25" min="0" max="6" step="0.01"></div>
         <button onclick="saveBabyInfo()" style="width:100%;background:var(--sage);color:#fff;border:none;border-radius:100px;padding:12px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer">저장</button>
       </div>
