@@ -36,31 +36,9 @@
   link.href = URL.createObjectURL(blob);
   document.head.appendChild(link);
 
-  // Service Worker 등록 (오프라인 캐시)
+  // Service Worker 등록 (알림 + 오프라인 캐시)
   if ('serviceWorker' in navigator) {
-    var sw = `
-const CACHE = 'bodeum-v1';
-const URLS = [self.location.href.replace('/sw-blob','')];
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/bodeum/'])).catch(()=>{}));
-  self.skipWaiting();
-});
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-  self.clients.claim();
-});
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    fetch(e.request).then(res => {
-      var clone = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, clone));
-      return res;
-    }).catch(() => caches.match(e.request))
-  );
-});`;
-    var swBlob = new Blob([sw], {type:'application/javascript'});
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(function(){});
+    navigator.serviceWorker.register('/bodeum/sw.js').catch(function() {});
   }
 })();
 </script>
@@ -485,6 +463,8 @@ html,body{height:100%;overflow:hidden}
         <div class="clver-item"><span class="clver-tag tag-fix">수정</span>홈 직전 / 직전 24시간 카드 텍스트 줄바꿈 방지 (13px 통일)</div>
         <div class="clver-item"><span class="clver-tag tag-new">NEW</span>수유·기저귀·수면·홈 타임라인 날짜 아래 경과시간 추가 ("X시간 X분 전" 형식)</div>
         <div class="clver-item"><span class="clver-tag tag-new">NEW</span>PWA 지원 — 홈 화면 추가 시 앱처럼 전체화면 실행, 오프라인 캐시</div>
+        <div class="clver-item"><span class="clver-tag tag-fix">수정</span>줌 비활성화 + 왼쪽 엣지 스와이프 뒤로가기</div>
+        <div class="clver-item"><span class="clver-tag tag-new">NEW</span>푸쉬 알림 — 마지막 수유 후 2시간 30분 경과 / 수유 타이머 30분 경과 시 알림</div>
       </div>
       <div class="clver">
         <div class="clver-hdr"><span class="clver-badge">v1.2</span><span class="clver-date">2026년 8월</span></div>
@@ -1230,7 +1210,65 @@ var firebaseConfig = {
     saveDB().then(renderAll);
   };
 
-  function renderAll() { renderHome(); renderFeeds(); renderDiapers(); renderSleeps(); renderWeights(); }
+  function renderAll() { renderHome(); renderFeeds(); renderDiapers(); renderSleeps(); renderWeights(); updateNotifState(); }
+
+  /* ── 푸쉬 알림 상태 관리 ── */
+  function getLastFeedTime() {
+    var done = DB.feeds.filter(function(f) { return f.end || f.time; });
+    if (!done.length) return null;
+    done.sort(function(a, b) { return new Date(b.start||b.time) - new Date(a.start||a.time); });
+    return new Date(done[0].start||done[0].time).getTime();
+  }
+  function getActiveFeedStart() {
+    var af = findActiveFeed();
+    return af ? new Date(af.start).getTime() : null;
+  }
+  function sendToSW(lastFeedTime, activeFeedStart) {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.ready.then(function(reg) {
+      if (reg.active) reg.active.postMessage({ type: 'FEED_UPDATE', lastFeedTime: lastFeedTime, activeFeedStart: activeFeedStart });
+    }).catch(function() {});
+  }
+  function updateNotifState() {
+    if (!('Notification' in window)) return;
+    var lastFeedTime = getLastFeedTime();
+    var activeFeedStart = getActiveFeedStart();
+    sendToSW(lastFeedTime, activeFeedStart);
+    /* 포그라운드 체크 (앱 열려있을 때) */
+    checkAndNotifyForeground(lastFeedTime, activeFeedStart);
+  }
+  var _fgHungerFired = null;
+  var _fgFeedFired = null;
+  function checkAndNotifyForeground(lastFeedTime, activeFeedStart) {
+    if (Notification.permission !== 'granted') return;
+    var now = Date.now();
+    /* 배고픔 알림 */
+    if (lastFeedTime && !activeFeedStart) {
+      var elapsed = now - lastFeedTime;
+      var key = 'hunger_' + lastFeedTime;
+      if (elapsed >= 2.5 * 3600 * 1000 && elapsed < 4 * 3600 * 1000 && _fgHungerFired !== key) {
+        _fgHungerFired = key;
+        new Notification('보듬 🌿', { body: '이엘이 배고플시간, 맘마 준비해주세요.', tag: 'hunger' });
+      }
+    }
+    /* 수유 타이머 30분 알림 */
+    if (activeFeedStart) {
+      var feedElapsed = now - activeFeedStart;
+      var feedKey = 'feed_' + activeFeedStart;
+      if (feedElapsed >= 30 * 60 * 1000 && feedElapsed < 90 * 60 * 1000 && _fgFeedFired !== feedKey) {
+        _fgFeedFired = feedKey;
+        new Notification('보듬 🌿', { body: '아직 맘마중인가요? 맘마 다 먹었으면 타이머 종료해주세요.', tag: 'feed-timer' });
+      }
+    }
+  }
+  /* 1분마다 포그라운드 체크 */
+  setInterval(function() { updateNotifState(); }, 60000);
+  /* 알림 권한 요청 (앱 첫 로드 후 3초 뒤) */
+  setTimeout(function() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(function() {});
+    }
+  }, 3000);
 
   // ── FEED TIMER ────────────────────────────────────────────
   function findActiveFeed() {
