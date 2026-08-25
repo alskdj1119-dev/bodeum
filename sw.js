@@ -29,40 +29,46 @@ function dbPut(db, key, val) {
 
 /* ── 알림 타이머 ── */
 var _hungerTimer = null;
+var _hungerRepeatTimer = null;
 var _feedTimer = null;
 var _babyName = '아이'; // 모듈 레벨 — activate 재시작 시에도 유지 (IndexedDB에서 복원)
 
+function elapsedLabel(ms) {
+  var totalMin = Math.floor(ms / 60000);
+  var hh = Math.floor(totalMin / 60), mm = totalMin % 60;
+  return (hh > 0 ? hh + '시간' : '') + mm + '분';
+}
+
+function fireHungerNotif(lastFeedTime) {
+  var elapsed = Date.now() - lastFeedTime;
+  self.registration.showNotification('보듬 🌿', {
+    body: _babyName + '가 배고플시간, 맘마 준비해주세요.\n마지막 맘마로 부터 ' + elapsedLabel(elapsed) + ' 지났어요.',
+    tag: 'hunger',
+    renotify: true,
+    requireInteraction: false
+  });
+  _hungerRepeatTimer = setTimeout(function() { fireHungerNotif(lastFeedTime); }, 5 * 60 * 1000);
+}
+
 function scheduleNotifications(lastFeedTime, activeFeedStart, babyName) {
   if (babyName) _babyName = babyName;
-  var babyName = _babyName; // 로컬로 참조
   clearTimeout(_hungerTimer);
+  clearTimeout(_hungerRepeatTimer);
   clearTimeout(_feedTimer);
 
   var now = Date.now();
 
-  /* 배고픔 알림: 마지막 수유 후 2시간 30분, 수유 중이 아닐 때 */
+  /* 배고픔 알림: 마지막 수유 후 2시간 30분째 1회, 이후 5분마다 반복 */
   if (lastFeedTime && !activeFeedStart) {
     var elapsed = now - lastFeedTime;
     var delay = (2.5 * 3600 * 1000) - elapsed;
     if (delay <= 0) {
-      /* 이미 시간이 지남 — 4시간 이내면 즉시 알림 */
-      if (elapsed < 4 * 3600 * 1000) {
-        self.registration.showNotification('보듬 🌿', {
-          body: babyName+'가 배고플시간, 맘마 준비해주세요.',
-          tag: 'hunger',
-          renotify: false,
-          requireInteraction: false
-        });
+      /* 이미 시간이 지남 — 6시간 이내면 즉시 알림 후 5분 반복 */
+      if (elapsed < 6 * 3600 * 1000) {
+        fireHungerNotif(lastFeedTime);
       }
     } else {
-      _hungerTimer = setTimeout(function() {
-        self.registration.showNotification('보듬 🌿', {
-          body: babyName+'가 배고플시간, 맘마 준비해주세요.',
-          tag: 'hunger',
-          renotify: true,
-          requireInteraction: false
-        });
-      }, delay);
+      _hungerTimer = setTimeout(function() { fireHungerNotif(lastFeedTime); }, delay);
     }
   }
 

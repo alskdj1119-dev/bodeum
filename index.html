@@ -1367,18 +1367,36 @@ var firebaseConfig = {
     checkAndNotifyForeground(lastFeedTime, activeFeedStart);
   }
   var _fgHungerFired = null;
+  var _fgHungerRepeat = null;
   var _fgFeedFired = null;
+  function fgElapsedLabel(ms) {
+    var totalMin = Math.floor(ms / 60000);
+    var hh = Math.floor(totalMin / 60), mm = totalMin % 60;
+    return (hh > 0 ? hh + '시간' : '') + mm + '분';
+  }
+  function fireFgHungerNotif(lastFeedTime) {
+    clearTimeout(_fgHungerRepeat);
+    var elapsed = Date.now() - lastFeedTime;
+    if (elapsed >= 6 * 3600 * 1000) return; // 6시간 초과 시 중단
+    new Notification('보듬 🌿', {
+      body: (Baby.name||'아이') + '가 배고플시간, 맘마 준비해주세요.\n마지막 맘마로 부터 ' + fgElapsedLabel(elapsed) + ' 지났어요.',
+      tag: 'hunger'
+    });
+    _fgHungerRepeat = setTimeout(function() { fireFgHungerNotif(lastFeedTime); }, 5 * 60 * 1000);
+  }
   function checkAndNotifyForeground(lastFeedTime, activeFeedStart) {
     if (Notification.permission !== 'granted') return;
     var now = Date.now();
-    /* 배고픔 알림 */
+    /* 배고픔 알림: 2h30m 경과 후 즉시, 이후 5분 반복 */
     if (lastFeedTime && !activeFeedStart) {
       var elapsed = now - lastFeedTime;
       var key = 'hunger_' + lastFeedTime;
-      if (elapsed >= 2.5 * 3600 * 1000 && elapsed < 4 * 3600 * 1000 && _fgHungerFired !== key) {
+      if (elapsed >= 2.5 * 3600 * 1000 && elapsed < 6 * 3600 * 1000 && _fgHungerFired !== key) {
         _fgHungerFired = key;
-        new Notification('보듬 🌿', { body: (Baby.name||'아이')+'가 배고플시간, 맘마 준비해주세요.', tag: 'hunger' });
+        fireFgHungerNotif(lastFeedTime);
       }
+    } else {
+      clearTimeout(_fgHungerRepeat);
     }
     /* 수유 타이머 30분 알림 */
     if (activeFeedStart) {
