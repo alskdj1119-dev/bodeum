@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>보듬</title>
 <!-- PWA -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -1407,6 +1407,41 @@ var firebaseConfig = {
     // goTab이 홈으로 리셋한 onclick을 서브탭 출처로 덮어씌움
     g('backBtn').onclick = function(){ goTab(_prevTab); };
   };
+
+  // ── 왼쪽 엣지 스와이프 → 뒤로가기 ───────────────────────
+  (function() {
+    var TAB_ORDER = ['home','feed','diaper','sleep','weight','settings'];
+    var _swipeStartX = 0, _swipeStartY = 0, _swipeActive = false;
+    document.addEventListener('touchstart', function(e) {
+      var t = e.touches[0];
+      _swipeStartX = t.clientX;
+      _swipeStartY = t.clientY;
+      // 화면 왼쪽 30px 이내에서 시작한 터치만 감지
+      _swipeActive = t.clientX <= 30;
+    }, { passive: true });
+    document.addEventListener('touchend', function(e) {
+      if (!_swipeActive) return;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - _swipeStartX;
+      var dy = Math.abs(t.clientY - _swipeStartY);
+      // 오른쪽으로 60px 이상, 수직 이동보다 수평이 클 때만
+      if (dx > 60 && dx > dy * 1.5) {
+        var cur = document.querySelector('.panel.active');
+        if (!cur) return;
+        var curTab = cur.id.replace('panel-','');
+        var bb = g('backBtn');
+        if (bb && bb.style.display !== 'none') {
+          // 서브탭(changelog, requests 등)이면 backBtn 동작
+          bb.click();
+        } else {
+          // 메인탭이면 왼쪽 탭으로 이동
+          var idx = TAB_ORDER.indexOf(curTab);
+          if (idx > 0) goTab(TAB_ORDER[idx - 1]);
+        }
+      }
+      _swipeActive = false;
+    }, { passive: true });
+  })();
 
   window.saveBabyInfo = function() {
     Baby.name        = (g('baby-name').value || '').trim() || '아이';
